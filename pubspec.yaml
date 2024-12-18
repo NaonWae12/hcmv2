@@ -1,0 +1,145 @@
+name: hcm_3
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.4
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  cupertino_icons: ^1.0.8
+  file_picker: ^8.1.6
+  flutter:
+    sdk: flutter
+  flutter_keyboard_visibility: ^6.0.0
+  flutter_svg: ^2.0.16
+  google_fonts: ^6.2.1
+  http: ^1.2.2
+  intl: ^0.19.0
+  mime: ^2.0.0
+  provider: ^6.1.2
+  shared_preferences: ^2.3.3
+  slide_to_act: ^2.0.2
+  table_calendar: ^3.1.3
+  url_launcher: ^6.3.1
+  webview_flutter: ^4.10.0
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+# The following section is specific to Flutter packages.
+flutter:
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/appBar_bg1.png
+    - assets/appBar_bg2.png
+    - assets/Payroll.png
+    - assets/Payslip.png
+    - assets/Counseling.png
+    - assets/Time Off.png
+    - assets/Overtime.png
+    - assets/Calendar.png
+    - assets/Resign.png
+    - assets/Other.png
+    - assets/Track_checkIn.png
+    - assets/Track_checkOut.png
+    - assets/bg.png
+    - assets/face_id.png
+    - assets/image_done.png
+    - assets/green_done.png
+    - assets/appBar_bg_full.png
+    - assets/payslip_detail.png
+    - assets/resign_check.png
+    - assets/wellscreen1.png
+    - assets/wellscreen2.png
+    - assets/wellscreen3.png
+    - assets/close.png
+    - assets/2.jpg
+    - assets/3.png
+    - assets/data-audit.png
+    - assets/Team.gif
+    - assets/thanks3.gif
+    - assets/clock out.gif
+    - assets/icons/bell_rounded.svg
+    - assets/icons/case_rounded.svg
+    - assets/icons/face_scan_rounded.svg
+    - assets/icons/home_smile_outlined.svg
+    - assets/icons/home_smile_rounded.svg
+    - assets/icons/hourglass_line_outlined.svg
+    - assets/icons/hourglass_line_rounded.svg
+    - assets/icons/lock_password_rounded.svg
+    - assets/icons/logout_rounded.svg
+    - assets/icons/moon_rounded.svg
+    - assets/icons/note_text_rounded.svg
+    - assets/icons/pie_chart_outlined.svg
+    - assets/icons/pie_chart_rounded.svg
+    - assets/icons/profile_outlined.svg
+    - assets/icons/profile_rounded.svg
+    - assets/icons/translate_rounded.svg
+    - assets/icons/widget_rounded.svg
+    - assets/icons/attendance_check.svg
+    - assets/icons/payroll.svg
+    - assets/icons/time_off.svg
+    - assets/icons/payslip_pin.svg
+    - assets/icons/payslip_detail.svg
+    - assets/icons/scan_attendace.svg
+    - assets/icons/mail.svg
+    - assets/icons/link.svg
+    - assets/icons/Lock_key.svg
+    - assets/icons/attention.svg
+    - assets/icons/download.svg
+    - assets/icons/calendar.svg
+    - assets/icons/done.svg
+    - assets/icons/doc_rev.svg
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
