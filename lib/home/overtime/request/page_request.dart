@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../../components/primary_button.dart';
+import 'approver_1.dart';
+import 'approver_2.dart';
 import 'bottom_content_2.dart';
 import 'dialog_utils.dart';
 import 'midle_content.dart';
@@ -96,20 +98,26 @@ class _PageRequestState extends State<PageRequest> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TopContent(key: _topContentKey),
-        const SizedBox(height: 10),
-        MidleContent(key: _midleContentKey),
-        const SizedBox(height: 10),
-        BottomContent2(key: _bottomContent2Key),
-        const SizedBox(height: 10),
-        PrimaryButton(
-          buttonWidth: MediaQuery.of(context).size.width / 1.2,
-          buttonText: 'Create Request',
-          onPressed: _createRequest,
-        ),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          TopContent(key: _topContentKey),
+          const SizedBox(height: 10),
+          MidleContent(key: _midleContentKey),
+          const SizedBox(height: 10),
+          const Approver1(),
+          const SizedBox(height: 10),
+          const Approver2(),
+          const SizedBox(height: 10),
+          BottomContent2(key: _bottomContent2Key),
+          const SizedBox(height: 10),
+          PrimaryButton(
+            buttonWidth: MediaQuery.of(context).size.width / 1.2,
+            buttonText: 'Create Request',
+            onPressed: _createRequest,
+          ),
+        ],
+      ),
     );
   }
 }

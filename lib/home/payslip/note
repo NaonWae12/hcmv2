@@ -15,7 +15,7 @@ import 'history/page_history_payslip.dart';
 class PageDetailPayslip extends StatelessWidget {
   const PageDetailPayslip({super.key});
 
-  Future<Map<String, dynamic>?> _fetchLatestSlipId(int employeeId) async {
+  Future<int?> _fetchLatestSlipId(int employeeId) async {
     final apiUrl =
         'https://jt-hcm.simise.id/api/hr.payslip/search?domain=[(\'employee_id\',\'=\',$employeeId)]&fields=[]';
     const headers = {
@@ -36,28 +36,26 @@ class PageDetailPayslip extends StatelessWidget {
             return dateB.compareTo(dateA); // Sort descending
           });
 
-          final latestPayslip = payslipData.first;
-          return {
-            'id': latestPayslip['id'], // ID of the latest payslip
-            'payslip_date': latestPayslip['payslip_date'], // Payslip date
-          };
+          return payslipData.first['id']; // ID of the latest payslip
         }
       } else {
         print(
             "Failed to fetch payslip data. Status Code: ${response.statusCode}");
+        return null;
       }
     } catch (e) {
       print("Error while fetching latest payslip ID: $e");
+      return null;
     }
     return null;
   }
 
   Future<List<dynamic>> _fetchPayslipData(int employeeId) async {
-    final latestSlip = await _fetchLatestSlipId(employeeId);
-    if (latestSlip == null) return [];
+    final latestSlipId = await _fetchLatestSlipId(employeeId);
+    if (latestSlipId == null) return [];
 
     final apiUrl =
-        'https://jt-hcm.simise.id/api/hr.payslip.line/search?domain=[(\'slip_id\',\'=\',${latestSlip['id']})]&fields=[\'name\',\'amount\',\'category_id\']';
+        'https://jt-hcm.simise.id/api/hr.payslip.line/search?domain=[(\'slip_id\',\'=\',$latestSlipId)]&fields=[\'name\',\'amount\',\'category_id\']';
     const headers = {
       'Content-Type': 'application/json',
       'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
@@ -70,11 +68,12 @@ class PageDetailPayslip extends StatelessWidget {
         return jsonResponse['data'] ?? [];
       } else {
         print("Failed to fetch data. Status Code: ${response.statusCode}");
+        return [];
       }
     } catch (e) {
       print("Error while fetching payslip data: $e");
+      return [];
     }
-    return [];
   }
 
   Future<Map<String, dynamic>> _getEmployeeDetails() async {
@@ -135,51 +134,33 @@ class PageDetailPayslip extends StatelessWidget {
               ),
             ),
             backgroundColor: Theme.of(context).colorScheme.surface,
-            body: FutureBuilder<Map<String, dynamic>?>(
-              future: _fetchLatestSlipId(employeeId),
-              builder: (context, latestSlipSnapshot) {
-                if (latestSlipSnapshot.connectionState ==
-                    ConnectionState.waiting) {
+            body: FutureBuilder<List<dynamic>>(
+              future: _fetchPayslipData(employeeId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (latestSlipSnapshot.hasError ||
-                    latestSlipSnapshot.data == null) {
-                  return const Center(
-                      child: Text('Failed to load latest payslip'));
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text('Failed to load data'));
                 } else {
-                  final latestSlip = latestSlipSnapshot.data!;
-                  final payslipDate =
-                      latestSlip['payslip_date'] ?? 'Unknown Date';
-
-                  return FutureBuilder<List<dynamic>>(
-                    future: _fetchPayslipData(employeeId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return const Center(child: Text('Failed to load data'));
-                      } else {
-                        final data = snapshot.data ?? [];
-                        return SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 8),
-                            child: Column(
-                              children: [
-                                _buildPayslipDetail(
-                                    context, data, name, jobId, payslipDate),
-                                const SizedBox(height: 10),
-                                PrimaryButton(
-                                  buttonWidth:
-                                      MediaQuery.of(context).size.width / 1.4,
-                                  buttonText: 'Preview',
-                                  onPressed: () {},
-                                ),
-                              ],
-                            ),
+                  final data = snapshot.data ?? [];
+                  print("Fetched Data: $data"); // Debug log
+                  return SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 8),
+                      child: Column(
+                        children: [
+                          _buildPayslipDetail(context, data, name, jobId),
+                          const SizedBox(height: 10),
+                          PrimaryButton(
+                            buttonWidth:
+                                MediaQuery.of(context).size.width / 1.4,
+                            buttonText: 'Preview',
+                            onPressed: () {},
                           ),
-                        );
-                      }
-                    },
+                        ],
+                      ),
+                    ),
                   );
                 }
               },
@@ -190,8 +171,8 @@ class PageDetailPayslip extends StatelessWidget {
     );
   }
 
-  Widget _buildPayslipDetail(BuildContext context, List<dynamic> data,
-      String name, String jobId, String payslipDate) {
+  Widget _buildPayslipDetail(
+      BuildContext context, List<dynamic> data, String name, String jobId) {
     final earnings =
         _filterDataByCategory(data, ['Allowance', 'Company Contributions']);
     final deductions = _filterDataByCategory(data, ['Deduction']);
@@ -213,7 +194,7 @@ class PageDetailPayslip extends StatelessWidget {
           children: [
             _buildHeader(context, name, jobId),
             const SizedBox(height: 10),
-            _buildMonthRow(context, payslipDate),
+            _buildMonthRow(context),
             const SizedBox(height: 70),
             _buildSectionTitle('Penghasilan'),
             _buildItems(context, earnings),
@@ -277,48 +258,19 @@ class PageDetailPayslip extends StatelessWidget {
     );
   }
 
-  Widget _buildMonthRow(BuildContext context, String payslipDate) {
-    final formattedDate = DateTime.parse(payslipDate);
-    final month = _formatMonth(formattedDate.month);
-    final year = formattedDate.year;
-
+  Widget _buildMonthRow(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          "DEC",
-          // month.toUpperCase(),
-          style: AppTextStyles.heading1,
-        ),
+        Text('DEC', style: AppTextStyles.heading1),
         SecondaryContainer(
           width: MediaQuery.of(context).size.width / 2,
           child: Center(
-            child: Text(
-              '$month $year',
-              style: AppTextStyles.heading1_1,
-            ),
+            child: Text('September 2023', style: AppTextStyles.heading1_1),
           ),
         ),
       ],
     );
-  }
-
-  String _formatMonth(int month) {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ];
-    return months[month - 1];
   }
 
   Widget _buildItems(BuildContext context, List<dynamic> items) {

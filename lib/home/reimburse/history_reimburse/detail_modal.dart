@@ -104,7 +104,7 @@ class _DetailModalState extends State<DetailModal> {
             const SizedBox(height: 12.0),
             Text('Name: ${widget.data['name']}',
                 style: AppTextStyles.heading2_1),
-            Text('State: ${widget.data['state']}',
+            Text('Status: ${widget.data['state']}',
                 style: AppTextStyles.heading3_3),
             Text('Created Date: ${widget.data['create_date']}',
                 style: AppTextStyles.heading3_3),

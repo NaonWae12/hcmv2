@@ -20,36 +20,36 @@ class ContentApproval extends StatefulWidget {
 
 class _ContentApprovalState extends State<ContentApproval> {
   List<Map<String, dynamic>> activities = [];
-  int? employeeId;
+  int? userId;
 
   @override
   void initState() {
     super.initState();
-    _loadEmployeeId();
+    _loadUserId();
   }
 
-  Future<void> _loadEmployeeId() async {
+  Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      employeeId = prefs.getInt('employee_id');
+      userId = prefs.getInt('user_id');
     });
 
-    // Call fetchActivities only if employeeId is available
-    if (employeeId != null) {
+    // Call fetchActivities only if userId is available
+    if (userId != null) {
       fetchActivities();
     } else {
-      print("Employee ID not found.");
+      print("User ID not found.");
     }
   }
 
   Future<void> fetchActivities() async {
-    if (employeeId == null) {
-      print("Cannot fetch activities: employeeId is null.");
+    if (userId == null) {
+      print("Cannot fetch activities: userId is null.");
       return;
     }
 
     String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.leave/search?domain=[('employee_id','=',$employeeId)]&fields=['employee_id','holiday_status_id','name','date_from','date_to','duration_display','state']";
+        "https://jt-hcm.simise.id/api/hr.overtime/search?domain=[('|'),('approver1_id','=',$userId),('approver2_id','=',$userId)]&fields=[]";
 
     final headers = {
       'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
@@ -66,16 +66,20 @@ class _ContentApprovalState extends State<ContentApproval> {
         if (jsonData.containsKey('data') && jsonData['data'] != null) {
           setState(() {
             activities = (jsonData['data'] as List<dynamic>).map((activity) {
-              final String startDate = _formatDate(activity['date_from']);
-              final String endDate = _formatDate(activity['date_to']);
+              final String startDate = _formatDate(activity['req_start']);
+              final String endDate = _formatDate(activity['req_end']);
+              final String createDate = _formatDate1(activity['create_date']);
+              final String employeeName =
+                  (activity['employee_id']?[0]?['name'] ?? 'Unknown Employee');
 
               return {
-                'description': activity['holiday_status_id'][0]['name'] ??
-                    'No Description',
+                'description':
+                    activity['reason_id'][0]['name'] ?? 'No Description',
+                'employee': employeeName,
+                'createDate': createDate,
                 'startDate': startDate,
                 'endDate': endDate,
-                'private_name': activity['private_name'] ?? '-',
-                'duration_display': activity['duration_display'] ?? '-',
+                'state': activity['state'] ?? '-',
               };
             }).toList();
           });
@@ -90,7 +94,19 @@ class _ContentApprovalState extends State<ContentApproval> {
     }
   }
 
-  String _formatDate(String dateTimeString) {
+  String _formatDate(String? dateTimeString) {
+    if (dateTimeString == null) return '-';
+    try {
+      final DateTime parsedDate = DateTime.parse(dateTimeString);
+      return DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
+    } catch (e) {
+      print("Error parsing date: $e");
+      return '-';
+    }
+  }
+
+  String _formatDate1(String? dateTimeString) {
+    if (dateTimeString == null) return '-';
     try {
       final DateTime parsedDate = DateTime.parse(dateTimeString);
       return DateFormat('yyyy-MM-dd').format(parsedDate);
@@ -98,6 +114,10 @@ class _ContentApprovalState extends State<ContentApproval> {
       print("Error parsing date: $e");
       return '-';
     }
+  }
+
+  void refreshActivities() {
+    fetchActivities();
   }
 
   @override
@@ -112,7 +132,10 @@ class _ContentApprovalState extends State<ContentApproval> {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => DialogApproval(activity: activity),
+                  builder: (context) => DialogApproval(
+                    activity: activity,
+                    refreshCallback: refreshActivities,
+                  ),
                 );
               },
               child: Padding(
@@ -141,25 +164,9 @@ class _ContentApprovalState extends State<ContentApproval> {
                                           'No Description',
                                       style: AppTextStyles.heading2_1,
                                     ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          activity['startDate'] ?? '-',
-                                          style: AppTextStyles.heading3_3,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: Text(
-                                            '→',
-                                            style: AppTextStyles.heading3_3,
-                                          ),
-                                        ),
-                                        Text(
-                                          activity['endDate'] ?? '-',
-                                          style: AppTextStyles.heading3_3,
-                                        ),
-                                      ],
+                                    Text(
+                                      activity['employee'] ?? '-',
+                                      style: AppTextStyles.heading3_3,
                                     ),
                                   ],
                                 ),

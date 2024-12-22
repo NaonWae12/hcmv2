@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 import '../components/primary_button.dart';
-import '../components/text_style.dart';
 import '../components/textfield_input.dart';
 import '../components/textfield_pw.dart';
 import '../custom_loading.dart';
@@ -173,14 +172,7 @@ class _ContentLoginState extends State<ContentLogin> {
             hintText: 'Input your password',
             obscureText: true,
           ),
-          const SizedBox(height: 20),
-          Align(
-              alignment: Alignment.center,
-              child: Text(
-                'Forgot password?',
-                style: AppTextStyles.heading2_1,
-              )),
-          const SizedBox(height: 15),
+          const SizedBox(height: 35),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -190,7 +182,7 @@ class _ContentLoginState extends State<ContentLogin> {
                       buttonHeight: 50,
                       buttonText: 'Sign In',
                       onPressed: login),
-                  SizedBox(height: MediaQuery.of(context).size.height / 3.2),
+                  SizedBox(height: MediaQuery.of(context).size.height / 3.5),
                   Align(
                     alignment: Alignment.bottomLeft,
                     child: Row(
@@ -212,7 +204,6 @@ class _ContentLoginState extends State<ContentLogin> {
               ),
             ),
           ),
-          const SizedBox(height: 15),
         ],
       ),
     );

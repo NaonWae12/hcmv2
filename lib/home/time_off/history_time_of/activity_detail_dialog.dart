@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Untuk formatting tanggal
-import 'package:url_launcher/url_launcher.dart'; // Tambahkan untuk meluncurkan URL
+import 'package:intl/intl.dart';
 import '../../../components/text_style.dart';
+import 'webview_page.dart';
 
 class ActivityDetailDialog extends StatelessWidget {
   final Map<String, dynamic> activity;
@@ -21,13 +21,16 @@ class ActivityDetailDialog extends StatelessWidget {
     }
   }
 
-  Future<void> _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch $url';
-    }
+  void _openInWebView(BuildContext context, String url, String description) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WebViewPage(
+          url: url,
+          description: description, // Tambahkan description
+        ),
+      ),
+    );
   }
 
   @override
@@ -80,6 +83,8 @@ class ActivityDetailDialog extends StatelessWidget {
                 style: AppTextStyles.heading3),
             Text('Duration: ${activity['duration_display'] ?? '-'}',
                 style: AppTextStyles.heading3),
+            Text('Status: ${activity['state'] ?? '-'}',
+                style: AppTextStyles.heading3),
             const SizedBox(height: 10),
             if (attachmentIds.isNotEmpty) ...[
               Text('Attachments:', style: AppTextStyles.heading3),
@@ -87,7 +92,9 @@ class ActivityDetailDialog extends StatelessWidget {
                 return InkWell(
                   onTap: () {
                     final fileUrl = "https://jt-hcm.simise.id/web/content/$id";
-                    _launchURL(fileUrl);
+                    final description =
+                        activity['description'] ?? 'WebView'; // Ambil deskripsi
+                    _openInWebView(context, fileUrl, description);
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),

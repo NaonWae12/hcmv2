@@ -110,9 +110,29 @@ class _PageHomeState extends State<PageHome>
                 Stack(
                   alignment: Alignment.topCenter,
                   children: [
-                    Image.asset(
-                      'assets/appBar_bg2.png',
-                      fit: BoxFit.cover,
+                    Container(
+                      height: 140,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(18),
+                          bottomRight: Radius.circular(18),
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(18),
+                          bottomRight: Radius.circular(18),
+                        ),
+                        child: Image.asset(
+                          'assets/appBar_bg2.png',
+                          fit: BoxFit.cover,
+                          width: double
+                              .infinity, // Pastikan lebar gambar mengikuti lebar container
+                          height: double
+                              .infinity, // Pastikan tinggi gambar mengikuti tinggi container
+                        ),
+                      ),
                     ),
                     Column(
                       children: [

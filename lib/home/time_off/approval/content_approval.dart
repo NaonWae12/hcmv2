@@ -19,30 +19,31 @@ class ContentApproval extends StatefulWidget {
 
 class _ContentApprovalState extends State<ContentApproval> {
   List<Map<String, dynamic>> activities = [];
-  int? employeeId;
+  int? userId;
 
   @override
   void initState() {
     super.initState();
-    _loadEmployeeId();
+    _loadUserId();
   }
 
-  Future<void> _loadEmployeeId() async {
+  Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      employeeId = prefs.getInt('employee_id');
+      userId =
+          prefs.getInt('user_id'); // Mengambil user_id dari SharedPreferences
     });
 
-    if (employeeId != null) {
+    if (userId != null) {
       fetchActivities();
     } else {
-      print("Employee ID not found.");
+      print("User ID not found.");
     }
   }
 
   Future<void> fetchActivities() async {
     String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.leave/search?domain=[('state','in',['confirm','validate1']),('|'), ('employee_id.user_id', '!=', 2),('|'),('%26'),('state','=','confirm'),('holiday_status_id.leave_validation_type','=','hr'),('state','=','validate1')]&fields=['holiday_status_id','employee_id','state']";
+        "https://jt-hcm.simise.id/api/hr.leave/search?domain=[('state','in',['confirm','validate1']),('|'), ('employee_id.user_id', '!=', $userId),('|'),('%26'),('state','=','confirm'),('holiday_status_id.leave_validation_type','=','hr'),('state','=','validate1')]&fields=['employee_id','holiday_status_id','name','date_from','date_to','duration_display','state','create_date','private_name', 'id']";
 
     final headers = {
       'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
@@ -73,6 +74,12 @@ class _ContentApprovalState extends State<ContentApproval> {
                     ? activity['employee_id'][0]['name']
                     : 'Unknown',
                 'state': activity['state'] ?? 'Unknown',
+                'dateFrom': activity['date_from'] ?? 'Unknown',
+                'dateTo': activity['date_to'] ?? 'Unknown',
+                'duration': activity['duration_display'] ?? 'Unknown',
+                'createDate': activity['create_date'] ?? 'Unknown',
+                'privateName': activity['private_name'] ?? 'Unknown',
+                'id': activity['id'] ?? 'Unknown',
               };
             }).toList();
 
@@ -90,6 +97,10 @@ class _ContentApprovalState extends State<ContentApproval> {
     }
   }
 
+  void refreshActivities() {
+    fetchActivities();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -102,7 +113,10 @@ class _ContentApprovalState extends State<ContentApproval> {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => DialogApproval(activity: activity),
+                  builder: (context) => DialogApproval(
+                    activity: activity,
+                    refreshCallback: refreshActivities, // Passing the callback
+                  ),
                 );
               },
               child: Padding(

@@ -67,6 +67,7 @@ class _PageHistoryState extends State<PageHistory> {
                     ? item['rule_id'][0]['name']
                     : 'Unknown Reason',
                 'date': _formatDateRange(item['req_start'], item['req_end']),
+                'createDate': _formatDate(item['create_date'] ?? 'unknown'),
                 'state': item['state'] ?? 'unknown',
               };
             }).toList();
@@ -74,17 +75,20 @@ class _PageHistoryState extends State<PageHistory> {
           });
         } else {
           setState(() {
-            _hasError = true;
+            _historyData = [];
+            _isLoading = false;
           });
         }
       } else {
         setState(() {
           _hasError = true;
+          _isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
         _hasError = true;
+        _isLoading = false;
       });
     }
   }
@@ -98,6 +102,15 @@ class _PageHistoryState extends State<PageHistory> {
         "${DateFormat('yyyy-MM-dd').format(endDate)} : ${DateFormat('HH.mm').format(endDate)}";
 
     return "$formattedStart → $formattedEnd";
+  }
+
+  String _formatDate(String date) {
+    try {
+      final DateTime parsedDate = DateTime.parse("${date}Z").toUtc().toLocal();
+      return "${DateFormat('yyyy-MM-dd').format(parsedDate)} : ${DateFormat('HH.mm').format(parsedDate)}";
+    } catch (e) {
+      return 'Invalid Date';
+    }
   }
 
   void _showDetailModal(Map<String, dynamic> data) {
@@ -115,52 +128,56 @@ class _PageHistoryState extends State<PageHistory> {
           ? const Center(child: CircularProgressIndicator())
           : _hasError
               ? const Center(child: Text('Failed to load data.'))
-              : SingleChildScrollView(
-                  child: Column(
-                    children: _historyData
-                        .map(
-                          (data) => GestureDetector(
-                            onTap: () => _showDetailModal(data),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
-                              child: PrimaryContainer(
-                                width: MediaQuery.of(context).size.width,
+              : _historyData.isEmpty
+                  ? const Center(child: Text('No data available to display.'))
+                  : SingleChildScrollView(
+                      child: Column(
+                        children: _historyData
+                            .map(
+                              (data) => GestureDetector(
+                                onTap: () => _showDetailModal(data),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: PrimaryContainer(
+                                    width: MediaQuery.of(context).size.width,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                              data['reason'] ??
-                                                  'Unknown Reason',
-                                              style: AppTextStyles.heading2_1),
-                                          Text(data['date'] ?? '',
-                                              style: AppTextStyles.heading3_3),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                  data['reason'] ??
+                                                      'Unknown Reason',
+                                                  style:
+                                                      AppTextStyles.heading2_1),
+                                              Text(data['date'] ?? '',
+                                                  style:
+                                                      AppTextStyles.heading3_3),
+                                            ],
+                                          ),
+                                          Image.asset(
+                                            data['state'] == 'done'
+                                                ? 'assets/image_done.png'
+                                                : 'assets/resign_check.png',
+                                            width: 40.0,
+                                            height: 40.0,
+                                          ),
                                         ],
                                       ),
-                                      Image.asset(
-                                        data['state'] == 'done'
-                                            ? 'assets/image_done.png'
-                                            : 'assets/resign_check.png',
-                                        width: 40.0,
-                                        height: 40.0,
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
+                            )
+                            .toList(),
+                      ),
+                    ),
     );
   }
 }
