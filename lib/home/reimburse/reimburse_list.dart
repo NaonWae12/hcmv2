@@ -70,7 +70,7 @@ class ReimburseListState extends State<ReimburseList> {
       }
     } else {
       // Handle error response status (misal 404 atau 500)
-      return []; // Kembalikan list kosong untuk menghindari error
+      return [];
     }
   }
 

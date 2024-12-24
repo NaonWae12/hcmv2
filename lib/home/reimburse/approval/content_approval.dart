@@ -19,37 +19,36 @@ class ContentApproval extends StatefulWidget {
 }
 
 class _ContentApprovalState extends State<ContentApproval> {
-  List<Map<String, dynamic>> activities = [];
-  int? employeeId;
+  List<Map<String, dynamic>> expenses = [];
+  int? userId;
 
   @override
   void initState() {
     super.initState();
-    _loadEmployeeId();
+    _loadUserId();
   }
 
-  Future<void> _loadEmployeeId() async {
+  Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      employeeId = prefs.getInt('employee_id');
+      userId = prefs.getInt('user_id') ?? 2; // Default to 2 as per API domain
     });
 
-    // Call fetchActivities only if employeeId is available
-    if (employeeId != null) {
-      fetchActivities();
+    if (userId != null) {
+      fetchExpenses();
     } else {
-      print("Employee ID not found.");
+      print("User ID not found.");
     }
   }
 
-  Future<void> fetchActivities() async {
-    if (employeeId == null) {
-      print("Cannot fetch activities: employeeId is null.");
+  Future<void> fetchExpenses() async {
+    if (userId == null) {
+      print("Cannot fetch expenses: userId is null.");
       return;
     }
 
     String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.leave/search?domain=[('employee_id','=',$employeeId)]&fields=['employee_id','holiday_status_id','name','date_from','date_to','duration_display','state']";
+        "https://jt-hcm.simise.id/api/hr.expense.sheet/search?domain=[('user_id','=',$userId),('state','=','submit')]&fields=[]";
 
     final headers = {
       'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
@@ -65,17 +64,15 @@ class _ContentApprovalState extends State<ContentApproval> {
 
         if (jsonData.containsKey('data') && jsonData['data'] != null) {
           setState(() {
-            activities = (jsonData['data'] as List<dynamic>).map((activity) {
-              final String startDate = _formatDate(activity['date_from']);
-              final String endDate = _formatDate(activity['date_to']);
-
+            expenses = (jsonData['data'] as List<dynamic>).map((expense) {
+              final String createdDate = _formatDate(expense['create_date']);
               return {
-                'description': activity['holiday_status_id'][0]['name'] ??
-                    'No Description',
-                'startDate': startDate,
-                'endDate': endDate,
-                'private_name': activity['private_name'] ?? '-',
-                'duration_display': activity['duration_display'] ?? '-',
+                'description': expense['name'] ?? 'No Description',
+                'amount': expense['total_amount'] ?? 0,
+                // 'currency': (expense['currency_id']?[0]['name']) ?? 'Unknown',
+                'createdDate': createdDate,
+                'state': expense['state'] ?? 'Unknown',
+                'create_date': _formatDate(expense['create_date']),
               };
             }).toList();
           });
@@ -90,7 +87,8 @@ class _ContentApprovalState extends State<ContentApproval> {
     }
   }
 
-  String _formatDate(String dateTimeString) {
+  String _formatDate(String? dateTimeString) {
+    if (dateTimeString == null) return '-';
     try {
       final DateTime parsedDate = DateTime.parse(dateTimeString);
       return DateFormat('yyyy-MM-dd').format(parsedDate);
@@ -100,6 +98,22 @@ class _ContentApprovalState extends State<ContentApproval> {
     }
   }
 
+  String _formatCurrency(dynamic amount) {
+    if (amount == null) return 'Rp0';
+    try {
+      final formatter =
+          NumberFormat.currency(locale: 'id', symbol: 'Rp', decimalDigits: 0);
+      return formatter.format(amount);
+    } catch (e) {
+      print("Error formatting currency: $e");
+      return 'Rp0';
+    }
+  }
+
+  void refreshActivities() {
+    fetchExpenses();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -107,12 +121,13 @@ class _ContentApprovalState extends State<ContentApproval> {
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: activities.map((activity) {
+          children: expenses.map((expense) {
             return GestureDetector(
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => DialogApproval(activity: activity),
+                  builder: (context) => DialogApproval(
+                      activity: expense, refreshCallback: refreshActivities),
                 );
               },
               child: Padding(
@@ -130,45 +145,35 @@ class _ContentApprovalState extends State<ContentApproval> {
                           children: [
                             Row(
                               children: [
-                                SvgPicture.asset('assets/icons/time_off.svg'),
                                 const SizedBox(width: 8),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      activity['description'] ??
+                                      expense['description'] ??
                                           'No Description',
                                       style: AppTextStyles.heading2_1,
                                     ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          activity['startDate'] ?? '-',
-                                          style: AppTextStyles.heading3_3,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: Text(
-                                            '→',
-                                            style: AppTextStyles.heading3_3,
-                                          ),
-                                        ),
-                                        Text(
-                                          activity['endDate'] ?? '-',
-                                          style: AppTextStyles.heading3_3,
-                                        ),
-                                      ],
+                                    Text(
+                                      "Amount: ${_formatCurrency(expense['amount'])}",
+                                      style: AppTextStyles.heading3_3,
+                                    ),
+                                    Text(
+                                      "Created: ${expense['createdDate']}",
+                                      style: AppTextStyles.heading3_3,
                                     ),
                                   ],
                                 ),
                               ],
                             ),
-                            Image.asset(
-                              'assets/green_done.png',
-                              height: 50,
-                            )
+                            SvgPicture.asset(
+                              expense['state'] == 'done'
+                                  ? 'assets/icons/done.svg'
+                                  : 'assets/icons/doc_rev.svg',
+                              width: 48.0,
+                              height: 48.0,
+                            ),
                           ],
                         ),
                       ),

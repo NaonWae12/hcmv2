@@ -7,6 +7,7 @@ import '../../../components/primary_button.dart';
 import '../../../components/text_style.dart';
 import '../dialog_utils.dart';
 import 'content_report.dart';
+import 'submit_report/page_submit_report.dart';
 
 class PageCreateReport extends StatefulWidget {
   const PageCreateReport({super.key});
@@ -58,11 +59,19 @@ class _PageCreateReportState extends State<PageCreateReport> {
       );
 
       if (response.statusCode == 200) {
-        // Tampilkan dialog sukses dan refresh ContentReport
+        // Tampilkan dialog sukses
         DialogUtils.showSuccessDialog(
           context,
           'Data successfully submitted!',
-          onOkPressed: refreshContent,
+          onOkPressed: () {
+            // Navigasi ke PageSubmitReport
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PageSubmitReport(),
+              ),
+            );
+          },
         );
       } else {
         throw Exception('Failed to send data: ${response.body}');
@@ -77,6 +86,18 @@ class _PageCreateReportState extends State<PageCreateReport> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Report', style: AppTextStyles.heading1_1),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PageSubmitReport(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.approval))
+        ],
       ),
       body: Column(
         children: [
