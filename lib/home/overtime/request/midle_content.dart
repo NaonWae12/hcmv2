@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -25,11 +26,10 @@ class MidleContentState extends State<MidleContent> {
   }
 
   Future<void> _fetchOvertimeRules() async {
-    const String apiUrl =
-        "https://jt-hcm.simise.id/api/overtime.reason/search?domain=[]&fields=['id','name']";
+    String apiUrl = ApiEndpoints.fetchOvertimeRules2();
     const Map<String, String> headers = {
       "Content-Type": "application/json",
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey
     };
 
     try {

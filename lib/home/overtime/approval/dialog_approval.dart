@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import '/components/colors.dart';
 import 'package:http/http.dart' as http;
 import '../../../components/custom_container_time.dart';
@@ -18,7 +19,7 @@ class DialogApproval extends StatelessWidget {
       {super.key, required this.activity, required this.refreshCallback});
 
   Future<void> sendApprovalRequest(BuildContext context) async {
-    const apiUrl = "https://jt-hcm.simise.id/api/hr.overtime/execute_kw";
+    final apiUrl = ApiEndpoints.sendApprovalRequest();
     final method =
         activity['state'] == 'submit' ? 'button_approve1' : 'button_approve';
 
@@ -35,7 +36,7 @@ class DialogApproval extends StatelessWidget {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey
         },
         body: json.encode(body),
       );
@@ -66,8 +67,8 @@ class DialogApproval extends StatelessWidget {
   }
 
   Future<void> sendRefuseRequest(BuildContext context) async {
-    const apiUrl = "https://jt-hcm.simise.id/api/hr.overtime/execute_kw";
-    const method = 'button_reject'; // Method khusus untuk Refuse
+    final apiUrl = ApiEndpoints.sendRefuseRequest();
+    const method = 'button_reject';
 
     final body = {
       "method": method,
@@ -82,7 +83,7 @@ class DialogApproval extends StatelessWidget {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey
         },
         body: json.encode(body),
       );
@@ -123,18 +124,19 @@ class DialogApproval extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Create Date: ${activity['createDate'] ?? '-'}',
-              style: AppTextStyles.heading3),
-          Text('Employee: ${activity['employee'] ?? '-'}',
-              style: AppTextStyles.heading3),
+          Text('Employee:', style: AppTextStyles.heading2_1),
+          Text('${activity['employee'] ?? '-'}', style: AppTextStyles.heading3),
+          Text('Overtime Rule:', style: AppTextStyles.heading2_1),
+          Text('${activity['ovt_rule'] ?? '-'}', style: AppTextStyles.heading3),
+          Text('Date:', style: AppTextStyles.heading2_1),
           Text('Start Date: ${activity['startDate'] ?? '-'}',
               style: AppTextStyles.heading3),
           Text('End Date: ${activity['endDate'] ?? '-'}',
               style: AppTextStyles.heading3),
-
-          Text('State: ${activity['state'] ?? '-'}',
+          Text('Create Date: ${activity['createDate'] ?? '-'}',
               style: AppTextStyles.heading3),
-          // Add any other details you want to display here
+          Text('State:', style: AppTextStyles.heading2_1),
+          Text('${activity['state'] ?? '-'}', style: AppTextStyles.heading3),
         ],
       ),
       actions: [
@@ -144,15 +146,18 @@ class DialogApproval extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                CustomContainerTime(
-                  width: 75,
-                  height: 30,
-                  color: Colors.green[100],
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Approve',
-                      style: AppTextStyles.smalBoldlLabel,
+                GestureDetector(
+                  onTap: () => sendApprovalRequest(context),
+                  child: CustomContainerTime(
+                    width: 75,
+                    height: 30,
+                    color: Colors.green[100],
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Approve',
+                        style: AppTextStyles.smalBoldlLabel,
+                      ),
                     ),
                   ),
                 ),

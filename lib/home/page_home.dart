@@ -77,23 +77,32 @@ class _PageHomeState extends State<PageHome>
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _jobId, // Teks dari SharedPreferences
-                style: AppTextStyles.heading3_2,
-              ),
-              Text(
-                _name, // Teks dari SharedPreferences
-                style: AppTextStyles.heading2_3,
-              ),
-            ],
-          ),
-          leading: const Icon(
-            Icons.account_circle,
-            color: Colors.white,
-            size: 32,
+          leadingWidth: MediaQuery.of(context).size.width,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 10, top: 8),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.account_circle,
+                  color: Colors.white,
+                  size: 32,
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _jobId,
+                      style: AppTextStyles.heading3_2,
+                    ),
+                    Text(
+                      _name,
+                      style: AppTextStyles.heading2_3,
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
           flexibleSpace: Image.asset(
             'assets/appBar_bg1.png',

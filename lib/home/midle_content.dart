@@ -1,66 +1,93 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import '/components/primary_container.dart';
 import '/home/overtime/page_overtime.dart';
-
 import '../components/text_style.dart';
-// import 'calendar/page_calendar.dart';
 import 'payslip/page_payslip_pin.dart';
-// import 'resign/page_resign_form.dart';
 import 'reimburse/page_reimburse.dart';
 import 'time_off/page_time_off.dart';
+import 'dart:io';
 
 class MidleContent extends StatelessWidget {
   const MidleContent({super.key});
+
+  Future<bool> checkInternetConnection() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true; // Koneksi tersedia
+      }
+    } on SocketException catch (_) {
+      return false; // Tidak ada koneksi
+    }
+    return false;
+  }
+
+  void showOfflineDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Oups!'),
+          content: const Text(
+              'Pastikan internet Anda stabil untuk mengakses fitur ini.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final List<String> titles = [
       'Reimburse',
       'Payslip',
-      // 'Counseling',
       'Time Off',
-      // 'Calendar',
       'Overtime',
-      // 'Resign',
-      // 'Other',
     ];
     final List<String> imagePaths = [
       'assets/Payroll.png',
       'assets/Payslip.png',
-      // 'assets/Counseling.png',
       'assets/Time Off.png',
       'assets/Overtime.png',
-      // 'assets/Calendar.png',
-      // 'assets/Resign.png',
-      // 'assets/Other.png',
     ];
     final List<Widget> pages = [
       const PageReimburse(),
       const PagePayslipPin(),
-      // const SettingsPage3(),
       const PageTimeOff(),
-      // const PageCalendar(),
       const PageOvertime(),
-      // const PageResignForm(),
-      // const SettingsPage8(),
     ];
     const int itemCount = 4;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Column(
         children: [
           Wrap(
-            spacing: 25, // Jarak horizontal antara item
-            runSpacing: 10, // Jarak vertikal antara baris
+            spacing: 25,
+            runSpacing: 10,
             children: List.generate(itemCount, (index) {
               return Column(
                 children: [
                   InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => pages[index]),
-                      );
+                    onTap: () async {
+                      final isConnected = await checkInternetConnection();
+                      if (isConnected) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => pages[index]),
+                        );
+                      } else {
+                        showOfflineDialog(context);
+                      }
                     },
                     child: PrimaryContainer(
                       height: 56,

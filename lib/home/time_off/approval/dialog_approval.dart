@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -29,7 +30,7 @@ class DialogApproval extends StatelessWidget {
   }
 
   Future<void> sendApprovalRequest(BuildContext context) async {
-    const apiUrl = "https://jt-hcm.simise.id/api/hr.leave/execute_kw";
+    final apiUrl = ApiEndpoints.approvalTimeOff();
     final method =
         activity['state'] == 'confirm' ? 'action_approve' : 'action_validate';
 
@@ -46,7 +47,7 @@ class DialogApproval extends StatelessWidget {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey
         },
         body: json.encode(body),
       );
@@ -77,8 +78,8 @@ class DialogApproval extends StatelessWidget {
   }
 
   Future<void> sendRefuseRequest(BuildContext context) async {
-    const apiUrl = "https://jt-hcm.simise.id/api/hr.leave/execute_kw";
-    const method = 'action_refuse'; // Method khusus untuk Refuse
+    final apiUrl = ApiEndpoints.refuseTimeOff();
+    const method = 'action_refuse';
 
     final body = {
       "method": method,
@@ -93,7 +94,7 @@ class DialogApproval extends StatelessWidget {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey
         },
         body: json.encode(body),
       );

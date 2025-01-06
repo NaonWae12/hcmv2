@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../../../custom_loading.dart';
 import '/components/text_style.dart';
 import '/components/custom_container_time.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -88,7 +89,8 @@ class ContentReportState extends State<ContentReport> {
         future: _expenseData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CustomLoading(imagePath: 'assets/3.png'));
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

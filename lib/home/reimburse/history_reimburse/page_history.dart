@@ -1,6 +1,8 @@
 // page_history.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../custom_loading.dart';
+import '../../../service/api_config.dart';
 import '/components/primary_container.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -44,11 +46,10 @@ class _PageHistoryState extends State<PageHistory> {
   }
 
   Future<void> _fetchHistoryData() async {
-    final String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.expense.sheet/search?domain=[('employee_id','=',$_employeeId)]";
+    final String apiUrl = ApiEndpoints.fetchHistoryData(_employeeId.toString());
     const Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
     };
 
     try {
@@ -117,7 +118,7 @@ class _PageHistoryState extends State<PageHistory> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CustomLoading(imagePath: 'assets/3.png'))
           : _hasError
               ? const Center(child: Text('No data available.'))
               : SingleChildScrollView(
@@ -147,7 +148,7 @@ class _PageHistoryState extends State<PageHistory> {
                                         ],
                                       ),
                                       SvgPicture.asset(
-                                        data['state'] == 'done'
+                                        data['state'] == 'approve'
                                             ? 'assets/icons/done.svg'
                                             : 'assets/icons/doc_rev.svg',
                                         width: 48.0,

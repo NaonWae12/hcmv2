@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -9,6 +10,8 @@ import '../../../components/primary_button.dart';
 import 'bottom_content_2.dart';
 import 'dialog_utils.dart';
 import 'midle_content.dart';
+import 'nav_submited.dart';
+import 'submited/page_submit_ovt.dart';
 import 'top_content.dart';
 
 class PageRequest extends StatefulWidget {
@@ -65,10 +68,10 @@ class _PageRequestState extends State<PageRequest> {
         "req_end": formattedEndDate,
       };
 
-      const String apiUrl = "https://jt-hcm.simise.id/api/hr.overtime/create";
+      String apiUrl = ApiEndpoints.createRequest();
       const Map<String, String> headers = {
         "Content-Type": "application/json",
-        'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+        'api-key': ApiConfig.apiKey
       };
 
       final response = await http.post(
@@ -85,6 +88,12 @@ class _PageRequestState extends State<PageRequest> {
         _topContentKey.currentState?.reset();
         _midleContentKey.currentState?.reset();
         _bottomContent2Key.currentState?.reset();
+
+        // Navigasi ke PageSubmitOvt setelah sukses
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PageSubmitOvt()),
+        );
       } else {
         DialogUtils.showErrorDialog(context,
             'Failed to create request. Status code: ${response.statusCode}');
@@ -107,6 +116,7 @@ class _PageRequestState extends State<PageRequest> {
           const SizedBox(height: 10),
           BottomContent2(key: _bottomContent2Key),
           const SizedBox(height: 10),
+          const NavSubmited(),
           PrimaryButton(
             buttonWidth: MediaQuery.of(context).size.width / 1.2,
             buttonText: 'Create Request',

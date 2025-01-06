@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../../components/primary_container.dart';
 import '../../../components/text_style.dart';
+import '../../../custom_loading.dart';
 import 'klik_detail_payslip.dart';
 
 class ContentHistory extends StatefulWidget {
@@ -37,11 +39,10 @@ class _ContentHistoryState extends State<ContentHistory> {
       final domain = Uri.encodeComponent(json.encode([
         ['employee_id', '=', employeeId]
       ]));
-      final url =
-          "https://jt-hcm.simise.id/api/hr.payslip/search?domain=$domain&fields=[]";
+      final url = ApiEndpoints.fetchPayslipData(domain);
       final headers = {
         'Content-Type': 'application/json',
-        'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+        'api-key': ApiConfig.apiKey
       };
 
       final response = await http.get(Uri.parse(url), headers: headers);
@@ -64,9 +65,9 @@ class _ContentHistoryState extends State<ContentHistory> {
         _isLoading = false;
       });
       // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error: ${e.toString()}"),
-      ));
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //   content: Text("Error: ${e.toString()}"),
+      // ));
     }
   }
 
@@ -74,7 +75,7 @@ class _ContentHistoryState extends State<ContentHistory> {
   Widget build(BuildContext context) {
     return Center(
       child: _isLoading
-          ? const CircularProgressIndicator()
+          ? const CustomLoading(imagePath: 'assets/3.png')
           : _slipData.isEmpty
               ? Text(
                   "Tidak ada data slip gaji tersedia.",

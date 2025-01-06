@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../components/primary_button.dart';
 import '../../components/text_style.dart';
+import '../../service/api_config.dart';
 import 'approval/page_approval.dart';
 import 'date.dart';
 import 'dialog_utils.dart';
@@ -92,10 +93,10 @@ class _PageReimburseState extends State<PageReimburse> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://jt-hcm.simise.id/api/hr.expense/create'),
+        Uri.parse(ApiEndpoints.submitRequest()),
         headers: {
           'Content-Type': 'application/json',
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey,
         },
         body: json.encode(body),
       );

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../components/text_style.dart';
+import '../../../../custom_loading.dart';
 import '../../history_reimburse/detail_modal.dart';
 import '/components/primary_container.dart';
 import 'package:http/http.dart' as http;
@@ -120,7 +121,7 @@ class _ContentSubmitReportState extends State<ContentSubmitReport> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CustomLoading(imagePath: 'assets/3.png'))
           : _hasError
               ? const Center(child: Text('No data available.'))
               : SingleChildScrollView(

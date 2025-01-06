@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -56,16 +57,18 @@ class TopContentState extends State<TopContent> {
   }
 
   Future<void> fetchCategories() async {
-    if (employeeId == null) return;
+    if (employeeId == null) {
+      print('Employee ID is null');
+      return;
+    }
 
-    final url = Uri.parse(
-        'https://jt-hcm.simise.id/api/hr/leave/allocation?employee_id=$employeeId');
+    final url = Uri.parse(ApiEndpoints.fetchCategories(employeeId.toString()));
 
     try {
       final response = await http.get(
         url,
         headers: {
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey,
           'Content-Type': 'application/json',
         },
       );
@@ -76,40 +79,44 @@ class TopContentState extends State<TopContent> {
 
         if (categoriesData != null) {
           setState(() {
-            categories = categoriesData
-                .map((item) => {
-                      'id': (item['id'] as num?)?.toInt(),
-                      'name': item['name'] ?? 'Unknown',
-                      'total_allocated':
-                          (item['total_allocated'] as num?)?.toInt(),
-                      'total_used': (item['total_used'] as num?)?.toInt(),
-                      'support_document': item['support_document'] ?? true,
-                    })
-                .toList();
-            for (var category in categories) {
-              print('Support Document: ${category['support_document']}');
-            }
+            categories = categoriesData.map((item) {
+              return {
+                'id': (item['id'] as num?)?.toInt(),
+                'name': item['name'] ?? 'Unknown',
+                'total_allocated':
+                    (item['total_allocated'] as num?)?.toInt() ?? 0,
+                'total_used': (item['total_used'] as num?)?.toInt() ?? 0,
+                'support_document': item['support_document'] ?? true,
+              };
+            }).toList();
 
             if (categories.isNotEmpty) {
               selectedHolidayStatusId = categories[0]['id'];
               supportDocument = categories[0]['support_document'] ?? true;
+
               final totalAllocated = categories[0]['total_allocated'];
               final totalUsed = categories[0]['total_used'];
+
               print('Initial holiday_status_id: $selectedHolidayStatusId');
-              // Memperbarui data totalAllocated dan totalUsed di MidleContent1
+
+              // Update MidleContent1
               widget.midleContentKey.currentState
                   ?.updateAllocatedUsed(totalAllocated, totalUsed);
+
               widget.onSupportDocumentChanged(supportDocument ?? true);
+            } else {
+              print('Categories list is empty');
             }
           });
         } else {
-          print('holiday_status adalah null atau bukan daftar');
+          print('holiday_status is null or not a list');
         }
       } else {
-        print('Gagal memuat kategori, Status Code: ${response.statusCode}');
+        print('Failed to load categories. Status Code: ${response.statusCode}');
+        print('Response body: ${response.body}');
       }
     } catch (e) {
-      print('Error: $e');
+      print('An error occurred while fetching categories: $e');
     }
   }
 

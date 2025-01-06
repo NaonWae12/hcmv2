@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../page_reimburse.dart';
 import '/components/primary_container.dart';
 import '/components/text_style.dart';
 import 'content_submit_report.dart';
@@ -49,6 +50,7 @@ class _PageSubmitReportState extends State<PageSubmitReport> {
       if (response.statusCode == 200) {
         // ignore: avoid_print
         print("Data submitted successfully!");
+        _showSuccessDialog();
       } else {
         // ignore: avoid_print
         print("Failed to submit data. Status code: ${response.statusCode}");
@@ -57,6 +59,31 @@ class _PageSubmitReportState extends State<PageSubmitReport> {
       // ignore: avoid_print
       print("Error: $e");
     }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Success"),
+          content: const Text("Data has been submitted successfully."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const PageReimburse(),
+                  ),
+                );
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

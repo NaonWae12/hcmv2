@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
+import '../../service/api_config.dart';
 import '/components/primary_button.dart';
 import '/components/text_style.dart';
 import 'approval/page_approval.dart';
@@ -94,7 +95,7 @@ class _PageTimeOffState extends State<PageTimeOff> {
       return;
     }
 
-    final url = Uri.parse('https://jt-hcm.simise.id/api/hr.leave/create');
+    final url = Uri.parse(ApiEndpoints.submitTimeOffRequest());
     final body = json.encode({
       'holiday_status_id': holidayStatusId,
       'employee_id': employeeId,
@@ -110,7 +111,7 @@ class _PageTimeOffState extends State<PageTimeOff> {
       final response = await http.post(
         url,
         headers: {
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey,
           'Content-Type': 'application/json',
         },
         body: body,
@@ -141,6 +142,17 @@ class _PageTimeOffState extends State<PageTimeOff> {
         } else {
           print('create_id not found in response.');
         }
+      } else if (response.statusCode == 400) {
+        // Tangani error 400
+        print('Failed to submit request: ${response.statusCode}');
+        print('Response body: ${response.body}');
+
+        if (mounted) {
+          await showErrorDialog(
+            context,
+            'Failed to submit request: Invalid data or overlapping dates. Please check your input.',
+          );
+        }
       } else {
         print('Failed to submit request: ${response.statusCode}');
         print('Response body: ${response.body}');
@@ -148,6 +160,26 @@ class _PageTimeOffState extends State<PageTimeOff> {
     } catch (e) {
       print('Error submitting request: $e');
     }
+  }
+
+  Future<void> showErrorDialog(BuildContext context, String message) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> uploadFile(int employeeId, int createId) async {
@@ -170,8 +202,7 @@ class _PageTimeOffState extends State<PageTimeOff> {
       }
 
       // URL API
-      final uploadUrl =
-          Uri.parse('https://jt-hcm.simise.id/api/ir.attachment/create');
+      final uploadUrl = Uri.parse(ApiEndpoints.uploadFile());
 
       // Buat body JSON
       final fileBody = json.encode({
@@ -189,7 +220,7 @@ class _PageTimeOffState extends State<PageTimeOff> {
       final response = await http.post(
         uploadUrl,
         headers: {
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey,
           'Content-Type': 'application/json',
         },
         body: fileBody,

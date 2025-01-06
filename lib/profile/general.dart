@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 // import 'package:provider/provider.dart';
 import '../components/primary_container.dart';
 import '../components/text_style.dart';
+import 'pin_settings/page_pin_settings.dart';
 // import '../theme_provider.dart';
 
 class General extends StatelessWidget {
@@ -21,21 +22,11 @@ class General extends StatelessWidget {
       'title': 'Notification',
       'page': const NotificationSettingsPage(),
     },
-    // {
-    //   'icon': 'assets/icons/face_scan_rounded.svg',
-    //   'title': 'Face Verification',
-    //   'page': const FaceVerificationPage(),
-    // },
     {
       'icon': 'assets/icons/lock_password_rounded.svg',
       'title': 'Set up your PIN',
-      'page': const PinSettingsPage(),
+      'page': const PagePinSettings(),
     },
-    // {
-    //   'icon': 'assets/icons/translate_rounded.svg',
-    //   'title': 'Language',
-    //   'page': const LanguageSettingsPage(),
-    // },
   ];
 
   @override
@@ -143,34 +134,20 @@ class FaceVerificationPage extends StatelessWidget {
   }
 }
 
-class PinSettingsPage extends StatelessWidget {
-  const PinSettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Set up your PIN'),
-      ),
-      body: const Center(
-        child: Text('Set up your PIN Page'),
-      ),
-    );
-  }
-}
-
-// class LanguageSettingsPage extends StatelessWidget {
-//   const LanguageSettingsPage({super.key});
+// class PinSettingsPage extends StatelessWidget {
+//   const PinSettingsPage({super.key});
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       appBar: AppBar(
-//         title: const Text('Language Settings'),
+//         title: const Text('Set up your PIN'),
 //       ),
 //       body: const Center(
-//         child: Text('Language Settings Page'),
+//         child: Text('Set up your PIN Page'),
 //       ),
 //     );
 //   }
 // }
+
+

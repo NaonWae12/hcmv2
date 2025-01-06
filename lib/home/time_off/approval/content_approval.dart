@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../service/api_config.dart';
 import '/components/primary_container.dart';
 import '/components/text_style.dart';
 import 'package:http/http.dart' as http;
@@ -42,11 +43,9 @@ class _ContentApprovalState extends State<ContentApproval> {
   }
 
   Future<void> fetchActivities() async {
-    String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.leave/search?domain=[('state','in',['confirm','validate1']),('|'), ('employee_id.user_id', '!=', $userId),('|'),('%26'),('state','=','confirm'),('holiday_status_id.leave_validation_type','=','hr'),('state','=','validate1')]&fields=['employee_id','holiday_status_id','name','date_from','date_to','duration_display','state','create_date','private_name', 'id']";
-
+    final apiUrl = ApiEndpoints.fetchActivities(userId.toString());
     final headers = {
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
       'Content-Type': 'application/json',
     };
 

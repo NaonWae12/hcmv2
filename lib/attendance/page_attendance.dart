@@ -37,8 +37,8 @@ class _PageAttendanceState extends State<PageAttendance> {
   }
 
   static String _getTodayDate() {
-    DateTime.now().toUtc();
-    return "\${now.year}-\${now.month.toString().padLeft(2, '0')}-\${now.day.toString().padLeft(2, '0')}";
+    final now = DateTime.now().toUtc();
+    return "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
   }
 
   Future<void> _loadEmployeeId() async {
@@ -51,13 +51,15 @@ class _PageAttendanceState extends State<PageAttendance> {
   Future<void> _checkAndCleanOldData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final storedDate = prefs.getString('attendance_date');
-
     if (storedDate != todayDate) {
       // Hapus data lama jika hari sudah berganti
       await prefs.remove('check_in_time');
       await prefs.remove('check_out_time');
       await prefs.remove('attendance_date');
     }
+    print('Stored Date: $storedDate');
+    print('Today Date: $todayDate');
+    print('Data Cleared');
   }
 
   Future<void> _loadAttendanceStatus() async {

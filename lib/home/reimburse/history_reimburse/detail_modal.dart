@@ -7,7 +7,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../components/custom_container_time.dart';
 import '../../../components/text_style.dart';
+import '../../../service/api_config.dart';
 import '../reimburse_dialog.dart';
+import '../report/submit_report/page_submit_report.dart';
 
 class DetailModal extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -38,12 +40,11 @@ class _DetailModalState extends State<DetailModal> {
   Future<void> fetchExpenseData() async {
     try {
       final employeeId = await getEmployeeId();
-      final url =
-          "https://jt-hcm.simise.id/api/hr.expense/search?domain=%5B('employee_id','%3D',$employeeId)%5D&fields=['employee_id','name','product_id','total_amount_currency','date']";
+      final url = ApiEndpoints.fetchExpenseData3(employeeId.toString());
 
       final headers = {
         'Content-Type': 'application/json',
-        'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+        'api-key': ApiConfig.apiKey,
       };
 
       print('Fetching data from URL: $url'); // Debug URL
@@ -100,7 +101,24 @@ class _DetailModalState extends State<DetailModal> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Detail', style: AppTextStyles.heading1),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Detail', style: AppTextStyles.heading1),
+                if (widget.data['state'] == 'draft')
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PageSubmitReport(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.approval),
+                  ),
+              ],
+            ),
             const SizedBox(height: 12.0),
             Text('Name: ${widget.data['name']}',
                 style: AppTextStyles.heading2_1),
@@ -109,25 +127,6 @@ class _DetailModalState extends State<DetailModal> {
             Text('Created Date: ${widget.data['create_date']}',
                 style: AppTextStyles.heading3_3),
             const SizedBox(height: 12.0),
-
-            // Data yang berasal dari halaman sebelumnya
-            // Text('Expense Line Items:', style: AppTextStyles.heading2_1),
-            // const SizedBox(height: 8.0),
-            // if (expenseLineIds.isNotEmpty)
-            //   ...expenseLineIds.map((item) {
-            //     final id = item['id'] ?? 'Unknown';
-            //     final name = item['name'] ?? 'Unnamed';
-            //     return Text('- $name (ID: $id)',
-            //         style: AppTextStyles.heading3_3);
-            //   }).toList()
-            // else
-            //   Text('No expense line items found.',
-            //       style: AppTextStyles.heading3_3),
-
-            // const SizedBox(height: 16.0),
-
-            // Data dari API yang sudah difilter
-            // Data dari API yang sudah difilter berdasarkan ID
             Text('Additional Expenses:', style: AppTextStyles.heading2_1),
             const SizedBox(height: 8.0),
             if (filteredExpenseData.isNotEmpty)
@@ -212,7 +211,6 @@ class _DetailModalState extends State<DetailModal> {
             else
               Text('No additional expenses found.',
                   style: AppTextStyles.heading3_3),
-
             const SizedBox(height: 16.0),
             Center(
               child: ElevatedButton(

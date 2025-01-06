@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../service/api_config.dart';
 import '/components/primary_container.dart';
 import '/components/text_style.dart';
 import 'package:http/http.dart' as http;
@@ -31,7 +32,7 @@ class _ContentApprovalState extends State<ContentApproval> {
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userId = prefs.getInt('user_id') ?? 2; // Default to 2 as per API domain
+      userId = prefs.getInt('user_id') ?? 2;
     });
 
     if (userId != null) {
@@ -47,11 +48,10 @@ class _ContentApprovalState extends State<ContentApproval> {
       return;
     }
 
-    String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.expense.sheet/search?domain=[('user_id','=',$userId),('state','=','submit')]&fields=[]";
+    String apiUrl = ApiEndpoints.fetchExpenses(userId.toString());
 
     final headers = {
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
       'Content-Type': 'application/json',
     };
 
@@ -67,9 +67,11 @@ class _ContentApprovalState extends State<ContentApproval> {
             expenses = (jsonData['data'] as List<dynamic>).map((expense) {
               final String createdDate = _formatDate(expense['create_date']);
               return {
+                'id': expense['id'],
                 'description': expense['name'] ?? 'No Description',
-                'amount': expense['total_amount'] ?? 0,
-                // 'currency': (expense['currency_id']?[0]['name']) ?? 'Unknown',
+                'amount': _formatCurrency(expense['total_amount'] ?? 0),
+                'employee':
+                    expense['employee_id']?[0]?['name'] ?? 'Unknown Employee',
                 'createdDate': createdDate,
                 'state': expense['state'] ?? 'Unknown',
                 'create_date': _formatDate(expense['create_date']),
@@ -156,7 +158,7 @@ class _ContentApprovalState extends State<ContentApproval> {
                                       style: AppTextStyles.heading2_1,
                                     ),
                                     Text(
-                                      "Amount: ${_formatCurrency(expense['amount'])}",
+                                      "Employee: ${(expense['employee'])}",
                                       style: AppTextStyles.heading3_3,
                                     ),
                                     Text(

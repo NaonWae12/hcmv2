@@ -3,6 +3,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:convert';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '/components/colors.dart';
@@ -18,8 +19,8 @@ class DialogApproval extends StatelessWidget {
       {super.key, required this.activity, required this.refreshCallback});
 
   Future<void> sendApprovalRequest(BuildContext context) async {
-    const apiUrl = "https://jt-hcm.simise.id/api/hr.expense.sheet/execute_kw";
-    final method = activity['state'] == 'action_approve_expense_sheets';
+    final apiUrl = ApiEndpoints.approvalReimburse();
+    const method = 'action_approve_expense_sheets';
 
     final body = {
       "method": method,
@@ -34,7 +35,7 @@ class DialogApproval extends StatelessWidget {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey
         },
         body: json.encode(body),
       );
@@ -65,9 +66,8 @@ class DialogApproval extends StatelessWidget {
   }
 
   Future<void> sendRefuseRequest(BuildContext context) async {
-    const apiUrl = "https://jt-hcm.simise.id/api/hr.expense.sheet/execute_kw";
-    const method =
-        'action_reset_approval_expense_sheets'; // Method khusus untuk Refuse
+    final apiUrl = ApiEndpoints.refuseReimburse();
+    const method = 'action_reset_approval_expense_sheets';
 
     final body = {
       "method": method,
@@ -82,7 +82,7 @@ class DialogApproval extends StatelessWidget {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey
         },
         body: json.encode(body),
       );
@@ -114,6 +114,7 @@ class DialogApproval extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("DialogApproval received activity: $activity");
     return AlertDialog(
       title: Text(
         activity['description'] ?? 'Detail',
@@ -123,7 +124,11 @@ class DialogApproval extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text('Employee: ${activity['employee'] ?? '-'}',
+              style: AppTextStyles.heading3),
           Text('Status: ${activity['state'] ?? '-'}',
+              style: AppTextStyles.heading3),
+          Text('Amount: ${activity['amount'] ?? '-'}',
               style: AppTextStyles.heading3),
           Text('Create Date: ${activity['create_date'] ?? '-'}',
               style: AppTextStyles.heading3),

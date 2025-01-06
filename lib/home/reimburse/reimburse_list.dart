@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../service/api_config.dart';
 import '/components/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -38,12 +39,11 @@ class ReimburseListState extends State<ReimburseList> {
 
   Future<List<dynamic>> fetchExpenseData() async {
     final employeeId = await getEmployeeId();
-    final url =
-        "https://jt-hcm.simise.id/api/hr.expense/search?domain=%5B('employee_id','%3D',$employeeId)%5D&fields=['employee_id','name','product_id','total_amount_currency','date','state']";
+    final url = ApiEndpoints.fetchExpenseData(employeeId);
 
     final headers = {
       'Content-Type': 'application/json',
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
     };
 
     final response = await http.get(Uri.parse(url), headers: headers);

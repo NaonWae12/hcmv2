@@ -2,9 +2,11 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../custom_loading.dart';
 import '/components/primary_button.dart';
 import '/components/secondary_container.dart';
 import '/components/text_style.dart';
@@ -16,11 +18,10 @@ class PageDetailPayslip extends StatelessWidget {
   const PageDetailPayslip({super.key});
 
   Future<Map<String, dynamic>?> _fetchLatestSlipId(int employeeId) async {
-    final apiUrl =
-        'https://jt-hcm.simise.id/api/hr.payslip/search?domain=[(\'employee_id\',\'=\',$employeeId)]&fields=[]';
+    final apiUrl = ApiEndpoints.fetchLatestSlipId(employeeId);
     const headers = {
       'Content-Type': 'application/json',
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey
     };
 
     try {
@@ -95,7 +96,7 @@ class PageDetailPayslip extends StatelessWidget {
       future: _getEmployeeDetails(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CustomLoading(imagePath: 'assets/3.png'));
         } else if (snapshot.hasError || snapshot.data == null) {
           return const Center(child: Text('Failed to load employee details'));
         } else {
@@ -140,7 +141,8 @@ class PageDetailPayslip extends StatelessWidget {
               builder: (context, latestSlipSnapshot) {
                 if (latestSlipSnapshot.connectionState ==
                     ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CustomLoading(imagePath: 'assets/3.png'));
                 } else if (latestSlipSnapshot.hasError ||
                     latestSlipSnapshot.data == null) {
                   return const Center(
@@ -154,7 +156,8 @@ class PageDetailPayslip extends StatelessWidget {
                     future: _fetchPayslipData(employeeId),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return const Center(
+                            child: CustomLoading(imagePath: 'assets/3.png'));
                       } else if (snapshot.hasError) {
                         return const Center(child: Text('Failed to load data'));
                       } else {

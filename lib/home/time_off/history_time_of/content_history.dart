@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../service/api_config.dart';
 import '/components/primary_container.dart';
 import '/components/text_style.dart';
 import 'package:http/http.dart' as http;
@@ -35,23 +36,21 @@ class _ContentHistoryState extends State<ContentHistory> {
     });
 
     if (employeeId != null) {
-      fetchActivities();
+      fetchActivities2();
     } else {
       print("Employee ID not found.");
     }
   }
 
-  Future<void> fetchActivities() async {
+  Future<void> fetchActivities2() async {
     if (employeeId == null) {
       print("Cannot fetch activities: employeeId is null.");
       return;
     }
 
-    String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.leave/search?domain=[('employee_id','=',$employeeId)]&fields=['employee_id','holiday_status_id','name','date_from','date_to','duration_display','state','create_date','private_name','attachment_ids']";
-
+    final apiUrl = ApiEndpoints.fetchActivities2(employeeId.toString());
     final headers = {
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
       'Content-Type': 'application/json',
     };
 
@@ -259,7 +258,7 @@ class _ContentHistoryState extends State<ContentHistory> {
                                   ],
                                 ),
                                 SvgPicture.asset(
-                                  activity['state'] == 'done'
+                                  activity['state'] == 'validate'
                                       ? 'assets/icons/done.svg'
                                       : 'assets/icons/doc_rev.svg',
                                   width: 48.0,

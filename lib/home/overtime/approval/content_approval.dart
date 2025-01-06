@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hcm_3/components/colors.dart';
+import 'package:hcm_3/service/api_config.dart';
 import '/components/primary_container.dart';
 import '/components/text_style.dart';
 import 'package:http/http.dart' as http;
@@ -48,11 +48,10 @@ class _ContentApprovalState extends State<ContentApproval> {
       return;
     }
 
-    String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.overtime/search?domain=[('|'),('approver1_id','=',$userId),('approver2_id','=',$userId)]&fields=[]";
+    String apiUrl = ApiEndpoints.fetchActivities3(userId);
 
     final headers = {
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
       'Content-Type': 'application/json',
     };
 
@@ -66,6 +65,7 @@ class _ContentApprovalState extends State<ContentApproval> {
         if (jsonData.containsKey('data') && jsonData['data'] != null) {
           setState(() {
             activities = (jsonData['data'] as List<dynamic>).map((activity) {
+              final int id = (activity['id']);
               final String startDate = _formatDate(activity['req_start']);
               final String endDate = _formatDate(activity['req_end']);
               final String createDate = _formatDate1(activity['create_date']);
@@ -75,10 +75,12 @@ class _ContentApprovalState extends State<ContentApproval> {
               return {
                 'description':
                     activity['reason_id'][0]['name'] ?? 'No Description',
+                'ovt_rule': activity['rule_id'][0]['name'] ?? 'No rule',
                 'employee': employeeName,
                 'createDate': createDate,
                 'startDate': startDate,
                 'endDate': endDate,
+                'id': id,
                 'state': activity['state'] ?? '-',
               };
             }).toList();
@@ -153,7 +155,11 @@ class _ContentApprovalState extends State<ContentApproval> {
                           children: [
                             Row(
                               children: [
-                                SvgPicture.asset('assets/icons/time_off.svg'),
+                                const Icon(
+                                  Icons.timer_outlined,
+                                  size: 35,
+                                  color: AppColors.textdanger,
+                                ),
                                 const SizedBox(width: 8),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,9 +179,12 @@ class _ContentApprovalState extends State<ContentApproval> {
                               ],
                             ),
                             Image.asset(
-                              'assets/green_done.png',
-                              height: 50,
-                            )
+                              activity['state'] == 'approved'
+                                  ? 'assets/image_done.png'
+                                  : 'assets/resign_check.png',
+                              width: 40.0,
+                              height: 40.0,
+                            ),
                           ],
                         ),
                       ),

@@ -8,6 +8,7 @@ import 'dart:convert';
 
 import '../../components/primary_container.dart';
 import '../../components/text_style.dart';
+import '../../service/api_config.dart';
 
 class MidleContent extends StatefulWidget {
   const MidleContent({super.key});
@@ -54,14 +55,13 @@ class MidleContentState extends State<MidleContent> {
   }
 
   Future<void> fetchCategories() async {
-    final url = Uri.parse(
-        'https://jt-hcm.simise.id/api/product.product/search?domain=[("can_be_expensed","=",True)]&fields=["default_code","product_tmpl_id"]');
+    final url = Uri.parse(ApiEndpoints.fetchCategories2());
 
     try {
       final response = await http.get(
         url,
         headers: {
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey,
           'Content-Type': 'application/json',
         },
       );

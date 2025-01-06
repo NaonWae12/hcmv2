@@ -11,6 +11,7 @@ import '../components/textfield_input.dart';
 import '../components/textfield_pw.dart';
 import '../custom_loading.dart';
 import '../navbar.dart';
+import '../service/api_config.dart';
 
 class ContentLogin extends StatefulWidget {
   const ContentLogin({super.key});
@@ -35,11 +36,13 @@ class _ContentLoginState extends State<ContentLogin> {
       builder: (context) => const CustomLoading(imagePath: 'assets/3.png'),
     );
 
-    final url = Uri.parse(
-        'https://jt-hcm.simise.id/api/login?db=$databaseName&login=${usernameController.text}&password=${passwordController.text}');
+    // Gunakan endpoint API baru
+    final url = ApiEndpoints.login(
+        databaseName, usernameController.text, passwordController.text);
+
     try {
       final response = await http.post(
-        url,
+        Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
         },

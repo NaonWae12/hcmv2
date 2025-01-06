@@ -1,11 +1,14 @@
-import 'dart:async';
+// ignore_for_file: avoid_print
 
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '/components/primary_button.dart';
 import '/components/text_style.dart';
-
 import 'page_detail_payslip.dart';
 
 class PagePayslipPin extends StatefulWidget {
@@ -50,6 +53,100 @@ class _PagePayslipPinState extends State<PagePayslipPin> {
     }
   }
 
+  Future<void> _validatePin() async {
+    String pin = _pin.join();
+
+    if (pin.length < 4) {
+      _showDialog("Error", "PIN harus terdiri dari 4 digit.");
+      return;
+    }
+
+    int? userId = await _getUserId();
+    if (userId == null) {
+      _showDialog("Error", "User ID tidak ditemukan. Silakan login kembali.");
+      return;
+    }
+
+    // LOG: Menampilkan User ID dan PIN sebelum dikirim
+    print("User ID: $userId");
+    print("PIN: $pin");
+    print("Request Body: {'user_id': $userId, 'pin': $pin}");
+
+    try {
+      var response = await http.post(
+        Uri.parse('https://jt-hcm.simise.id/api/validate_pin'),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+        },
+        body: {
+          'user_id':
+              userId.toString(), // Gunakan format key-value, bukan JSON string
+          'pin': pin,
+        },
+      );
+
+      // LOG: Menampilkan respons API
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      // Periksa apakah respons status adalah 'success'
+      var data = jsonDecode(response.body);
+      if (response.statusCode == 200 && data['status'] == 'success') {
+        _showDialog("Success", "PIN benar!", isSuccess: true);
+      } else {
+        _showDialog("Error", "PIN salah. Silakan coba lagi.");
+      }
+    } catch (e) {
+      print("Error saat mengirim request: $e"); // LOG: Menampilkan error
+      _showDialog("Error", "Terjadi kesalahan, silakan coba lagi.");
+    }
+  }
+
+  Future<int?> _getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userId = prefs.get('user_id'); // Dapatkan user_id tanpa tipe spesifik
+
+    if (userId != null) {
+      try {
+        return int.parse(userId.toString()); // Konversi ke int
+      } catch (e) {
+        print("Error saat mengonversi user_id ke int: $e");
+        return null; // Jika gagal dikonversi, kembalikan null
+      }
+    } else {
+      return null;
+    }
+  }
+
+  void _showDialog(String title, String message, {bool isSuccess = false}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                if (isSuccess) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PageDetailPayslip(),
+                    ),
+                  );
+                }
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,10 +156,11 @@ class _PagePayslipPinState extends State<PagePayslipPin> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.arrow_back)),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back),
+            ),
             Text(
               'Payslip',
               style: AppTextStyles.heading1_1,
@@ -106,7 +204,7 @@ class _PagePayslipPinState extends State<PagePayslipPin> {
                       style: AppTextStyles.displayText_2,
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(1),
-                        FilteringTextInputFormatter.digitsOnly
+                        FilteringTextInputFormatter.digitsOnly,
                       ],
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(
@@ -126,16 +224,10 @@ class _PagePayslipPinState extends State<PagePayslipPin> {
                   buttonHeight: 54,
                   buttonWidth: MediaQuery.of(context).size.width / 1.2,
                   buttonText: 'Submit',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const PageDetailPayslip()),
-                    );
-                  },
+                  onPressed: _validatePin,
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -6,6 +6,8 @@ import 'dart:convert';
 
 import '../../../components/custom_container_time.dart';
 import '../../../components/text_style.dart';
+import '../../../custom_loading.dart';
+import '../../../service/api_config.dart';
 import '../reimburse_dialog.dart';
 
 class HistoryReimburseList extends StatefulWidget {
@@ -31,12 +33,11 @@ class _HistoryReimburseListState extends State<HistoryReimburseList> {
 
   Future<List<dynamic>> fetchExpenseData() async {
     final employeeId = await getEmployeeId();
-    final url =
-        "https://jt-hcm.simise.id/api/hr.expense/search?domain=%5B('employee_id','%3D',$employeeId)%5D&fields=['employee_id','name','product_id','total_amount_currency','date','state']";
+    final url = ApiEndpoints.fetchExpenseData2(employeeId.toString());
 
     final headers = {
       'Content-Type': 'application/json',
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
     };
 
     final response = await http.get(Uri.parse(url), headers: headers);
@@ -70,7 +71,8 @@ class _HistoryReimburseListState extends State<HistoryReimburseList> {
         future: _expenseData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CustomLoading(imagePath: 'assets/3.png'));
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

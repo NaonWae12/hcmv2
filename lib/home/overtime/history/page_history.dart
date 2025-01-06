@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
+import '../../../custom_loading.dart';
 import '/components/primary_container.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -42,11 +44,10 @@ class _PageHistoryState extends State<PageHistory> {
   }
 
   Future<void> _fetchHistoryData() async {
-    final String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.overtime/search?domain=[('employee_id','=',$_employeeId)]";
+    final String apiUrl = ApiEndpoints.fetchHistoryData4(_employeeId);
     const Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey
     };
 
     try {
@@ -125,7 +126,7 @@ class _PageHistoryState extends State<PageHistory> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CustomLoading(imagePath: 'assets/3.png'))
           : _hasError
               ? const Center(child: Text('Failed to load data.'))
               : _historyData.isEmpty
@@ -162,7 +163,7 @@ class _PageHistoryState extends State<PageHistory> {
                                             ],
                                           ),
                                           Image.asset(
-                                            data['state'] == 'done'
+                                            data['state'] == 'approved'
                                                 ? 'assets/image_done.png'
                                                 : 'assets/resign_check.png',
                                             width: 40.0,

@@ -14,8 +14,8 @@ class BottomContent2State extends State<BottomContent2> {
   DateTime? _fromDate1;
   DateTime? _fromDate2;
 
-  DateTime? get fromDate1 => _fromDate1; // Tambahkan getter ini
-  DateTime? get fromDate2 => _fromDate2; // Tambahkan getter ini
+  DateTime? get fromDate1 => _fromDate1;
+  DateTime? get fromDate2 => _fromDate2;
   void reset() {
     setState(() {
       _fromDate1 = null;

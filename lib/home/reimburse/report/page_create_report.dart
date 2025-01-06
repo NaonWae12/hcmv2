@@ -64,7 +64,6 @@ class _PageCreateReportState extends State<PageCreateReport> {
           context,
           'Data successfully submitted!',
           onOkPressed: () {
-            // Navigasi ke PageSubmitReport
             Navigator.push(
               context,
               MaterialPageRoute(
