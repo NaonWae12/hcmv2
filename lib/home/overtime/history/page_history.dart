@@ -67,6 +67,14 @@ class _PageHistoryState extends State<PageHistory> {
                 'rule': item['rule_id'] != null && item['rule_id'].isNotEmpty
                     ? item['rule_id'][0]['name']
                     : 'Unknown Reason',
+                'approved1': item['approver1_id'] != null &&
+                        item['approver1_id'].isNotEmpty
+                    ? item['approver1_id'][0]['name']
+                    : 'Unknown Reason',
+                'approved2': item['approver2_id'] != null &&
+                        item['approver2_id'].isNotEmpty
+                    ? item['approver2_id'][0]['name']
+                    : 'Unknown Reason',
                 'date': _formatDateRange(item['req_start'], item['req_end']),
                 'createDate': _formatDate(item['create_date'] ?? 'unknown'),
                 'state': item['state'] ?? 'unknown',

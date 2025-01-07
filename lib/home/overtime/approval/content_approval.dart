@@ -99,7 +99,15 @@ class _ContentApprovalState extends State<ContentApproval> {
   String _formatDate(String? dateTimeString) {
     if (dateTimeString == null) return '-';
     try {
-      final DateTime parsedDate = DateTime.parse(dateTimeString);
+      print("Original date string from API: $dateTimeString"); // Debugging
+
+      // Paksa sebagai UTC sebelum dikonversi ke lokal
+      DateTime parsedDate =
+          DateTime.parse("${dateTimeString}Z").toUtc().toLocal();
+
+      print(
+          "Converted Local Time: ${parsedDate.toIso8601String()}"); // Debugging
+
       return DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
     } catch (e) {
       print("Error parsing date: $e");
@@ -110,7 +118,15 @@ class _ContentApprovalState extends State<ContentApproval> {
   String _formatDate1(String? dateTimeString) {
     if (dateTimeString == null) return '-';
     try {
-      final DateTime parsedDate = DateTime.parse(dateTimeString);
+      print("Original date string from API: $dateTimeString"); // Debugging
+
+      // Paksa sebagai UTC sebelum dikonversi ke lokal
+      DateTime parsedDate =
+          DateTime.parse("${dateTimeString}Z").toUtc().toLocal();
+
+      print(
+          "Converted Local Date: ${parsedDate.toIso8601String()}"); // Debugging
+
       return DateFormat('yyyy-MM-dd').format(parsedDate);
     } catch (e) {
       print("Error parsing date: $e");

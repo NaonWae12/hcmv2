@@ -66,8 +66,10 @@ class _PageHomeState extends State<PageHome>
 
   Future<void> _triggerRefresh() async {
     await _handleRefresh();
+
+    // Panggil fungsi refresh di BottomContent
     if (mounted) {
-      setState(() {}); // Memperbarui tampilan setelah refresh
+      _bottomContentKey.currentState?.refreshContent();
     }
   }
 

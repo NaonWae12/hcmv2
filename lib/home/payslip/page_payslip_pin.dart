@@ -198,7 +198,6 @@ class _PagePayslipPinState extends State<PagePayslipPin> {
                     child: TextFormField(
                       controller: _controllers[index],
                       onChanged: (value) => _onChanged(index, value),
-                      keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       obscureText: false,
                       style: AppTextStyles.displayText_2,

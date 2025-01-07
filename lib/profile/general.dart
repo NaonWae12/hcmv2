@@ -12,11 +12,11 @@ class General extends StatelessWidget {
   General({super.key});
 
   final List<Map<String, dynamic>> settingsItems = [
-    {
-      'icon': 'assets/icons/profile_rounded.svg',
-      'title': 'Account Setting',
-      'page': const AccountSettingsPage(),
-    },
+    // {
+    //   'icon': 'assets/icons/profile_rounded.svg',
+    //   'title': 'Account Setting',
+    //   'page': const AccountSettingsPage(),
+    // },
     {
       'icon': 'assets/icons/bell_rounded.svg',
       'title': 'Notification',
@@ -86,21 +86,21 @@ class General extends StatelessWidget {
   }
 }
 
-class AccountSettingsPage extends StatelessWidget {
-  const AccountSettingsPage({super.key});
+// class AccountSettingsPage extends StatelessWidget {
+//   const AccountSettingsPage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Account Settings'),
-      ),
-      body: const Center(
-        child: Text('Account Settings Page'),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Account Settings'),
+//       ),
+//       body: const Center(
+//         child: Text('Account Settings Page'),
+//       ),
+//     );
+//   }
+// }
 
 class NotificationSettingsPage extends StatelessWidget {
   const NotificationSettingsPage({super.key});

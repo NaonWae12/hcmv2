@@ -83,9 +83,10 @@ class TopContentState extends State<TopContent> {
               return {
                 'id': (item['id'] as num?)?.toInt(),
                 'name': item['name'] ?? 'Unknown',
-                'total_allocated':
-                    (item['total_allocated'] as num?)?.toInt() ?? 0,
-                'total_used': (item['total_used'] as num?)?.toInt() ?? 0,
+                'total_allocated': (item['total_allocated'] as num?)
+                    ?.toInt(), // Tetap null jika tidak ada
+                'total_used': (item['total_used'] as num?)
+                    ?.toInt(), // Tetap null jika tidak ada
                 'support_document': item['support_document'] ?? true,
               };
             }).toList();
@@ -97,11 +98,16 @@ class TopContentState extends State<TopContent> {
               final totalAllocated = categories[0]['total_allocated'];
               final totalUsed = categories[0]['total_used'];
 
-              print('Initial holiday_status_id: $selectedHolidayStatusId');
+              print('Total Allocated: $totalAllocated, Total Used: $totalUsed');
 
-              // Update MidleContent1
-              widget.midleContentKey.currentState
-                  ?.updateAllocatedUsed(totalAllocated, totalUsed);
+              // Cek apakah totalAllocated & totalUsed valid sebelum update MidleContent1
+              if (totalAllocated != null && totalUsed != null) {
+                widget.midleContentKey.currentState
+                    ?.updateAllocatedUsed(totalAllocated, totalUsed);
+              } else {
+                widget.midleContentKey.currentState
+                    ?.updateAllocatedUsed(null, null);
+              }
 
               widget.onSupportDocumentChanged(supportDocument ?? true);
             } else {

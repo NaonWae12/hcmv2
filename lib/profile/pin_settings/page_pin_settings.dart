@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -11,7 +13,8 @@ class PagePinSettings extends StatefulWidget {
 }
 
 class _PagePinSettingsState extends State<PagePinSettings> {
-  final TextEditingController _pinController = TextEditingController();
+  final TextEditingController _currentPinController = TextEditingController();
+  final TextEditingController _newPinController = TextEditingController();
   final TextEditingController _confirmPinController = TextEditingController();
   String? _errorText;
   bool _isLoading = false;
@@ -34,6 +37,7 @@ class _PagePinSettingsState extends State<PagePinSettings> {
     setState(() {
       _userId = userIdInt?.toString();
     });
+    print("Loaded user_id: $_userId"); // Log user_id
   }
 
   /// Mengirim PIN ke API
@@ -42,30 +46,43 @@ class _PagePinSettingsState extends State<PagePinSettings> {
       setState(() {
         _errorText = "User ID tidak ditemukan! Silakan login kembali.";
       });
+      print("Error: User ID is null");
       return;
     }
 
-    String pin = _pinController.text;
+    String currentPin = _currentPinController.text;
+    String newPin = _newPinController.text;
     String confirmPin = _confirmPinController.text;
 
-    if (pin.isEmpty || confirmPin.isEmpty) {
+    if (currentPin.isEmpty) {
       setState(() {
-        _errorText = "PIN tidak boleh kosong!";
+        _errorText = "PIN lama tidak boleh kosong!";
       });
+      print("Error: Current PIN is empty");
       return;
     }
 
-    if (pin.length < 4 || confirmPin.length < 4) {
+    if (newPin.isEmpty || confirmPin.isEmpty) {
+      setState(() {
+        _errorText = "PIN baru tidak boleh kosong!";
+      });
+      print("Error: New PIN or Confirm PIN is empty");
+      return;
+    }
+
+    if (newPin.length < 4 || confirmPin.length < 4) {
       setState(() {
         _errorText = "PIN harus 4 digit atau lebih!";
       });
+      print("Error: PIN length is less than 4 digits");
       return;
     }
 
-    if (pin != confirmPin) {
+    if (newPin != confirmPin) {
       setState(() {
-        _errorText = "PIN tidak cocok, coba lagi!";
+        _errorText = "PIN baru tidak cocok, coba lagi!";
       });
+      print("Error: New PIN and Confirm PIN do not match");
       return;
     }
 
@@ -75,15 +92,29 @@ class _PagePinSettingsState extends State<PagePinSettings> {
     });
 
     try {
-      var url = Uri.parse("https://jt-hcm.simise.id/api/validate_pin");
+      var url = Uri.parse("https://jt-hcm.simise.id/api/setup_pin");
+
+      // Menggunakan format x-www-form-urlencoded
+      var requestBody = {
+        "user_id": _userId!, // String format sesuai kebutuhan API
+        "current_pin": currentPin,
+        "new_pin": newPin,
+      };
+
+      print("Sending request to $url with body: $requestBody");
+
       var response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "user_id": _userId, // Kirim user_id dari SharedPreferences
-          "pin": pin
-        }),
+        headers: {
+          "Content-Type":
+              "application/x-www-form-urlencoded", // Perbaikan di sini
+          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+        },
+        body: requestBody,
       );
+
+      print("Response status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
@@ -97,16 +128,19 @@ class _PagePinSettingsState extends State<PagePinSettings> {
           setState(() {
             _errorText = responseData['message'] ?? "Terjadi kesalahan!";
           });
+          print("Error response: ${responseData['message']}");
         }
       } else {
         setState(() {
           _errorText = "Gagal menyimpan PIN! Coba lagi.";
         });
+        print("Error: Non-200 status code received");
       }
     } catch (e) {
       setState(() {
         _errorText = "Terjadi kesalahan: $e";
       });
+      print("Exception: $e");
     } finally {
       setState(() {
         _isLoading = false;
@@ -116,7 +150,8 @@ class _PagePinSettingsState extends State<PagePinSettings> {
 
   @override
   void dispose() {
-    _pinController.dispose();
+    _currentPinController.dispose();
+    _newPinController.dispose();
     _confirmPinController.dispose();
     super.dispose();
   }
@@ -129,49 +164,62 @@ class _PagePinSettingsState extends State<PagePinSettings> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Masukkan PIN baru",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _pinController,
-              obscureText: true,
-              keyboardType: TextInputType.number,
-              maxLength: 4,
-              decoration: const InputDecoration(
-                labelText: "Enter PIN",
-                border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Create New PIN",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _confirmPinController,
-              obscureText: true,
-              keyboardType: TextInputType.number,
-              maxLength: 4,
-              decoration: const InputDecoration(
-                labelText: "Confirm PIN",
-                border: OutlineInputBorder(),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _currentPinController,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                maxLength: 4,
+                decoration: const InputDecoration(
+                  labelText: "Enter Current PIN",
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            if (_errorText != null)
-              Text(
-                _errorText!,
-                style: const TextStyle(color: Colors.red),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _newPinController,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                maxLength: 4,
+                decoration: const InputDecoration(
+                  labelText: "Enter New PIN",
+                  border: OutlineInputBorder(),
+                ),
               ),
-            const SizedBox(height: 20),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _savePin,
-                    child: const Text("Save PIN"),
-                  ),
-          ],
+              const SizedBox(height: 10),
+              TextField(
+                controller: _confirmPinController,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                maxLength: 4,
+                decoration: const InputDecoration(
+                  labelText: "Confirm New PIN",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              if (_errorText != null)
+                Text(
+                  _errorText!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              const SizedBox(height: 20),
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _savePin,
+                      child: const Text("Save PIN"),
+                    ),
+            ],
+          ),
         ),
       ),
     );

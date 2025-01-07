@@ -23,13 +23,28 @@ class DetailDialog extends StatelessWidget {
           Text('Rule:', style: AppTextStyles.heading3_1),
           Text(data['rule'] ?? 'Unknown Reason',
               style: AppTextStyles.heading3_3),
-          // const SizedBox(height: 8.0),
           Text('Date Range:', style: AppTextStyles.heading3_1),
           Text(data['date'] ?? '', style: AppTextStyles.heading3_3),
-          // const SizedBox(height: 8.0),
           Text('Status:', style: AppTextStyles.heading3_1),
           Text(data['state'] ?? 'unknown', style: AppTextStyles.heading3_3),
-          // const SizedBox(height: 8.0),
+          Text('Approved 1:', style: AppTextStyles.heading3_1),
+          Text(
+            data['state'] == 'submit'
+                ? 'Not yet'
+                : data['state'] == 'approved1'
+                    ? (data['approved1'] ?? 'unknown')
+                    : (data['approved1'] ?? 'unknown'),
+            style: AppTextStyles.heading3_3,
+          ),
+          Text('Approved 2:', style: AppTextStyles.heading3_1),
+          Text(
+            data['state'] == 'submit'
+                ? 'Not yet'
+                : data['state'] == 'approved1'
+                    ? 'Not Yet'
+                    : (data['approved2'] ?? 'unknown'),
+            style: AppTextStyles.heading3_3,
+          ),
           Text('Create Date:', style: AppTextStyles.heading3_1),
           Text(data['createDate'] ?? 'unknown',
               style: AppTextStyles.heading3_3),

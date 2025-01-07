@@ -31,23 +31,21 @@ class MidleContent1State extends State<MidleContent1> {
       totalAllocated = allocated;
       totalUsed = used;
 
-      // Jika salah satu data null, jangan lakukan perhitungan
-      // Lakukan perhitungan jika data valid
+      // Hanya hitung remainingTimeOff jika allocated & used valid
       if (totalAllocated != null && totalUsed != null) {
         remainingTimeOff = totalAllocated! - totalUsed!;
       } else {
-        remainingTimeOff = 0; // Set remainingTimeOff ke 0 jika data null
+        remainingTimeOff = null; // Jika null, jangan trigger dialog
       }
     });
   }
 
   // Method untuk menghitung sisa waktu cuti
-  int calculateRemainingTimeOff() {
+  int? calculateRemainingTimeOff() {
     if (totalAllocated != null && totalUsed != null) {
       return totalAllocated! - totalUsed!;
-    } else {
-      return 0; // Return 0 jika data null
     }
+    return null; // Jangan paksa return 0 jika datanya tidak tersedia
   }
 
   // Method untuk menampilkan dialog peringatan jika jumlah hari lebih dari sisa waktu cuti
@@ -85,14 +83,13 @@ class MidleContent1State extends State<MidleContent1> {
 
   @override
   Widget build(BuildContext context) {
-    // Update remaining time off setelah total allocated dan used diset
+    // Hitung ulang remainingTimeOff hanya jika allocated & used tidak null
     remainingTimeOff = calculateRemainingTimeOff();
 
-    // Mengecek apakah rentang waktu melebihi sisa waktu cuti setelah memilih tanggal
-    if (_fromDate1 != null && _fromDate2 != null) {
+    // Cek apakah totalAllocated & totalUsed tersedia sebelum menampilkan peringatan
+    if (_fromDate1 != null && _fromDate2 != null && remainingTimeOff != null) {
       final int selectedDays = _fromDate2!.difference(_fromDate1!).inDays + 1;
       if (selectedDays > remainingTimeOff!) {
-        // Menampilkan dialog jika rentang waktu lebih dari sisa waktu cuti
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showExceededTimeOffDialog();
         });
@@ -138,24 +135,17 @@ class MidleContent1State extends State<MidleContent1> {
                 });
               },
             ),
-            // Hanya tampilkan pesan jika data valid
-            if (remainingTimeOff != null && remainingTimeOff! <= 0)
-              const Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Text(
-                  '',
-                  // 'You do not have any remaining time off.',
-                  style: TextStyle(color: Colors.red),
-                ),
-              )
-            else if (remainingTimeOff != null)
+            // Hanya tampilkan sisa cuti jika totalAllocated & totalUsed valid
+            if (remainingTimeOff != null)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: Text(
                   'You have $remainingTimeOff days left.',
-                  style: const TextStyle(color: Colors.green),
+                  style: TextStyle(
+                    color: remainingTimeOff! > 0 ? Colors.green : Colors.red,
+                  ),
                 ),
-              ), // Jika totalAllocated atau totalUsed null, jangan tampilkan teks
+              ),
           ],
         ),
       ),

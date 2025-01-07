@@ -37,6 +37,13 @@ class BottomContentState extends State<BottomContent> {
     setState(() {});
   }
 
+  void refreshContent() {
+    setState(() {
+      // Refresh UI dan ulangi pengecekan konektivitas
+      _checkConnectivity();
+    });
+  }
+
   Future<void> _loadEmployeeId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -63,18 +70,22 @@ class BottomContentState extends State<BottomContent> {
     if (isOffline || employeeId == null) return null;
 
     final url = ApiEndpoints.fetchAttendance(employeeId.toString());
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'api-key': ApiConfig.apiKey,
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'api-key': ApiConfig.apiKey},
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['data'] != null && data['data'].isNotEmpty) {
-        return List<Map<String, dynamic>>.from(data['data']);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['data'] != null
+            ? List<Map<String, dynamic>>.from(data['data'])
+            : null;
       }
+    } on SocketException {
+      setState(() => isOffline = true); // Menandai bahwa koneksi bermasalah
+    } catch (e) {
+      print('Fetch error: $e');
     }
     return null;
   }
@@ -261,6 +272,26 @@ class BottomContentState extends State<BottomContent> {
     );
   }
 
+  Widget buildAttendanceListEmpty() {
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: PrimaryContainer(
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Attendance Tracking',
+                        style: AppTextStyles.heading1_1,
+                      ),
+                    ],
+                  )
+                ]))));
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isOffline) {
@@ -279,7 +310,7 @@ class BottomContentState extends State<BottomContent> {
             child: Text('Error: ${snapshot.error}'),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return buildOfflineMessage();
+          return buildAttendanceListEmpty();
         }
 
         return buildAttendanceList(snapshot.data!);
