@@ -1,4 +1,5 @@
 const String baseUrl = 'https://jt-hcm.simise.id/api';
+const String baseUrl2 = 'https://jt-hcm.simise.id';
 
 class ApiConfig {
   static const String apiKey = 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08';
@@ -51,8 +52,24 @@ class ApiEndpoints {
   static String fetchExpenseData3(employeeId) =>
       "$baseUrl/hr.expense/search?domain=%5B('employee_id','%3D',$employeeId)%5D&fields=['employee_id','name','product_id','total_amount_currency','date']"; //detail_modal | reimburse
 
+  // ignore: no_leading_underscores_for_local_identifiers
+  static String fetchExpenseData4(_employeeId) =>
+      "$baseUrl/hr.expense.sheet/search?domain=[('employee_id','=',$_employeeId),('state','=','draft')]"; //content_submit_report | reimburse
+
+  static String submitData2() =>
+      "$baseUrl/hr.expense.sheet/execute_kw"; //page_submit_report | reimburse
+
   static String fetchExpenses(userId) =>
       "$baseUrl/hr.expense.sheet/search?domain=[('user_id','=',$userId),('state','=','submit')]&fields=[]"; //content_approval | reimburse
+
+  static String fetchExpenseData5(employeeId) =>
+      "$baseUrl/hr.expense/search?domain=%5B('employee_id','%3D',$employeeId)%5D&fields=['employee_id','name','product_id','total_amount_currency','date','state']"; //content_report | reimburse
+
+  static String fetchExpenseData6(employeeId) =>
+      "$baseUrl/hr.expense/search?domain=%5B('employee_id','%3D',$employeeId)%5D&fields=['employee_id','name','product_id','total_amount_currency','date']"; //expense_modal | reimburse
+
+  // static String fetchManagers() =>
+  //     "$baseUrl/res.users/search?domain=[('groups_id','in',163)]&fields=['partner_id']"; //report/midle_content | reimburse
 
   static String approvalReimburse() =>
       "$baseUrl/hr.expense.sheet/execute_kw"; //dialog_approval | reimburse
@@ -65,6 +82,12 @@ class ApiEndpoints {
 
   static String fetchPayslipData(domain) =>
       "$baseUrl/hr.payslip/search?domain=$domain&fields=[]"; //content_history | payslip
+
+  static String fetchPayslipData2(slipId) =>
+      '$baseUrl/hr.payslip.line/search?domain=[(\'slip_id\',\'=\',$slipId)]&fields=[\'name\',\'amount\',\'category_id\']'; //klik_detail_payslip | payslip
+
+  static String validatePin() =>
+      '$baseUrl/validate_pin'; //page_payslip_pin | payslip
 //
   // ignore: no_leading_underscores_for_local_identifiers
   static String fetchHistoryData2(_employeeId) =>

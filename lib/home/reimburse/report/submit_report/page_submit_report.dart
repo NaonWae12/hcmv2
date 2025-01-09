@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import '../../page_reimburse.dart';
 import '/components/primary_container.dart';
 import '/components/text_style.dart';
@@ -30,11 +31,10 @@ class _PageSubmitReportState extends State<PageSubmitReport> {
       return;
     }
 
-    const String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.expense.sheet/execute_kw";
+    final apiUrl = ApiEndpoints.submitData2();
     const Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
     };
     final body = jsonEncode({
       "method": "action_submit_sheet",
@@ -88,59 +88,61 @@ class _PageSubmitReportState extends State<PageSubmitReport> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Image.asset('assets/appBar_bg_full.png', fit: BoxFit.cover),
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.arrow_back),
-                      color: Colors.white,
-                    ),
-                    Text(
-                      'Submit Report',
-                      style: AppTextStyles.heading1_2,
-                    ),
-                    const SizedBox(width: 40)
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-              Expanded(
-                child: PrimaryContainer(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15),
-                      bottomLeft: Radius.circular(0),
-                      bottomRight: Radius.circular(0)),
-                  width: MediaQuery.of(context).size.width,
-                  height: 200,
-                  child: ContentSubmitReport(
-                    onSelectId: _handleSelectMessage,
+    return SafeArea(
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Image.asset('assets/appBar_bg_full.png', fit: BoxFit.cover),
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.arrow_back),
+                        color: Colors.white,
+                      ),
+                      Text(
+                        'Submit Report',
+                        style: AppTextStyles.heading1_2,
+                      ),
+                      const SizedBox(width: 40)
+                    ],
                   ),
                 ),
-              )
-            ],
-          )
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 20.0),
-        child: PrimaryButton(
-          buttonWidth: MediaQuery.of(context).size.width / 1.5,
-          buttonText: 'Submit',
-          onPressed: _submitData,
+                const SizedBox(height: 30),
+                Expanded(
+                  child: PrimaryContainer(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15),
+                        bottomLeft: Radius.circular(0),
+                        bottomRight: Radius.circular(0)),
+                    width: MediaQuery.of(context).size.width,
+                    height: 200,
+                    child: ContentSubmitReport(
+                      onSelectId: _handleSelectMessage,
+                    ),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 20.0),
+          child: PrimaryButton(
+            buttonWidth: MediaQuery.of(context).size.width / 1.5,
+            buttonText: 'Submit',
+            onPressed: _submitData,
+          ),
         ),
       ),
     );

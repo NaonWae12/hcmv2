@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,11 +16,10 @@ class KlikDetailPayslip extends StatelessWidget {
   const KlikDetailPayslip({super.key, required this.slipData});
 
   Future<List<dynamic>> _fetchPayslipData(int slipId) async {
-    final apiUrl =
-        'https://jt-hcm.simise.id/api/hr.payslip.line/search?domain=[(\'slip_id\',\'=\',$slipId)]&fields=[\'name\',\'amount\',\'category_id\']';
+    final apiUrl = ApiEndpoints.fetchPayslipData2(slipId);
     const headers = {
       'Content-Type': 'application/json',
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
     };
 
     try {

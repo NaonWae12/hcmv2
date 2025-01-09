@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '/components/primary_button.dart';
@@ -74,10 +75,10 @@ class _PagePayslipPinState extends State<PagePayslipPin> {
 
     try {
       var response = await http.post(
-        Uri.parse('https://jt-hcm.simise.id/api/validate_pin'),
+        Uri.parse(ApiEndpoints.validatePin()),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey,
         },
         body: {
           'user_id':

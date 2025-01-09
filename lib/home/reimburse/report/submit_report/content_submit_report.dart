@@ -1,6 +1,7 @@
 // page_history.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hcm_3/service/api_config.dart';
 import '../../../../components/text_style.dart';
 import '../../../../custom_loading.dart';
 import '../../history_reimburse/detail_modal.dart';
@@ -48,11 +49,10 @@ class _ContentSubmitReportState extends State<ContentSubmitReport> {
   }
 
   Future<void> _fetchHistoryData() async {
-    final String apiUrl =
-        "https://jt-hcm.simise.id/api/hr.expense.sheet/search?domain=[('employee_id','=',$_employeeId),('state','=','draft')]";
+    final String apiUrl = ApiEndpoints.fetchExpenseData4(_employeeId);
     const Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
     };
 
     try {

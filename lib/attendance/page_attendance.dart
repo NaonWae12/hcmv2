@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import '/navbar.dart';
 import 'package:http/http.dart' as http;
 import '/components/colors.dart';
@@ -110,10 +111,10 @@ class _PageAttendanceState extends State<PageAttendance> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final checkInTime = prefs.getString('check_in_time');
 
-    final url = Uri.parse('https://jt-hcm.simise.id/api/hr.attendance/create');
+    final url = Uri.parse('$baseUrl/hr.attendance/create');
     final headers = {
       "Content-Type": "application/json",
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
     };
     final body = jsonEncode({
       "employee_id": employeeId,

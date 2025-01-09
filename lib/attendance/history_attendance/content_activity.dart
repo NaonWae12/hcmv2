@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hcm_3/service/api_config.dart';
 import '/components/primary_container.dart';
 import '/components/text_style.dart';
 import 'package:http/http.dart' as http;
@@ -39,9 +40,9 @@ class _ContentActivityState extends State<ContentActivity> {
 
     final response = await http.get(
       Uri.parse(
-          'https://jt-hcm.simise.id/api/hr.attendance/search?domain=[(\'employee_id\',\'=\',$employeeId)]&fields=[\'employee_id\',\'check_in\',\'check_out\',\'worked_hours\']'),
+          '$baseUrl/hr.attendance/search?domain=[(\'employee_id\',\'=\',$employeeId)]&fields=[\'employee_id\',\'check_in\',\'check_out\',\'worked_hours\']'),
       headers: {
-        'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+        'api-key': ApiConfig.apiKey,
       },
     );
 

@@ -1,22 +1,30 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+// import 'package:hcm_3/home/payslip/tes_download.dart';
+import 'package:hcm_3/navbar.dart';
 import 'package:hcm_3/service/api_config.dart';
 import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../custom_loading.dart';
-import '/components/primary_button.dart';
+// import '/components/primary_button.dart';
 import '/components/secondary_container.dart';
 import '/components/text_style.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import 'history/page_history_payslip.dart';
 
-class PageDetailPayslip extends StatelessWidget {
+class PageDetailPayslip extends StatefulWidget {
   const PageDetailPayslip({super.key});
 
+  @override
+  State<PageDetailPayslip> createState() => _PageDetailPayslipState();
+}
+
+class _PageDetailPayslipState extends State<PageDetailPayslip> {
   Future<Map<String, dynamic>?> _fetchLatestSlipId(int employeeId) async {
     final apiUrl = ApiEndpoints.fetchLatestSlipId(employeeId);
     const headers = {
@@ -58,10 +66,11 @@ class PageDetailPayslip extends StatelessWidget {
     if (latestSlip == null) return [];
 
     final apiUrl =
-        'https://jt-hcm.simise.id/api/hr.payslip.line/search?domain=[(\'slip_id\',\'=\',${latestSlip['id']})]&fields=[\'name\',\'amount\',\'category_id\']';
+        '$baseUrl/hr.payslip.line/search?domain=[(\'slip_id\',\'=\',${latestSlip['id']})]&fields=[\'name\',\'amount\',\'category_id\']';
+    print("ID payslip: ${latestSlip['id']}");
     const headers = {
       'Content-Type': 'application/json',
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
     };
 
     try {
@@ -114,7 +123,11 @@ class PageDetailPayslip extends StatelessWidget {
                 children: [
                   IconButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const Navbar(),
+                            ));
                       },
                       icon: const Icon(Icons.arrow_back)),
                   Text(
@@ -151,6 +164,7 @@ class PageDetailPayslip extends StatelessWidget {
                   final latestSlip = latestSlipSnapshot.data!;
                   final payslipDate =
                       latestSlip['payslip_date'] ?? 'Unknown Date';
+                  final payslipId = latestSlip['id'] ?? 'Unknown id';
 
                   return FutureBuilder<List<dynamic>>(
                     future: _fetchPayslipData(employeeId),
@@ -168,15 +182,22 @@ class PageDetailPayslip extends StatelessWidget {
                                 horizontal: 15, vertical: 8),
                             child: Column(
                               children: [
-                                _buildPayslipDetail(
-                                    context, data, name, jobId, payslipDate),
+                                _buildPayslipDetail(context, data, name, jobId,
+                                    payslipDate, payslipId),
                                 const SizedBox(height: 10),
-                                PrimaryButton(
-                                  buttonWidth:
-                                      MediaQuery.of(context).size.width / 1.4,
-                                  buttonText: 'Preview',
-                                  onPressed: () {},
-                                ),
+                                // PrimaryButton(
+                                //   buttonWidth:
+                                //       MediaQuery.of(context).size.width / 1.4,
+                                //   buttonText: 'Preview',
+                                //   onPressed: () {
+                                //     Navigator.push(
+                                //         context,
+                                //         MaterialPageRoute(
+                                //           builder: (context) =>
+                                //               const PayslipScreen(),
+                                //         ));
+                                //   },
+                                // ),
                               ],
                             ),
                           ),
@@ -194,7 +215,7 @@ class PageDetailPayslip extends StatelessWidget {
   }
 
   Widget _buildPayslipDetail(BuildContext context, List<dynamic> data,
-      String name, String jobId, String payslipDate) {
+      String name, String jobId, String payslipDate, int payslipId) {
     final earnings =
         _filterDataByCategory(data, ['Allowance', 'Company Contributions']);
     final deductions = _filterDataByCategory(data, ['Deduction']);
@@ -214,7 +235,7 @@ class PageDetailPayslip extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(context, name, jobId),
+            _buildHeader(context, name, jobId, payslipId),
             const SizedBox(height: 10),
             _buildMonthRow(context, payslipDate),
             const SizedBox(height: 70),
@@ -237,7 +258,8 @@ class PageDetailPayslip extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String name, String jobId) {
+  Widget _buildHeader(
+      BuildContext context, String name, String jobId, int payslipId) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -263,21 +285,107 @@ class PageDetailPayslip extends StatelessWidget {
           ],
         ),
         IconButton(
-          onPressed: () async {
-            const url = 'https://jt-hcm.simise.id/web/content/4001';
-            if (await canLaunchUrl(Uri.parse(url))) {
-              await launchUrl(Uri.parse(url),
-                  mode: LaunchMode.externalApplication);
-            }
-          },
-          icon: const Icon(
-            Icons.download_for_offline_outlined,
-            size: 45,
-            color: Colors.white60,
-          ),
-        )
+          onPressed:
+              _isDownloading ? null : () => downloadAndOpenPayslip(payslipId),
+          icon: _isDownloading
+              ? CircularProgressIndicator(color: Colors.white60)
+              : const Icon(
+                  Icons.download_for_offline_outlined,
+                  size: 45,
+                  color: Colors.white60,
+                ),
+        ),
       ],
     );
+  }
+
+// 🔹 Variabel untuk indikator loading
+  bool _isDownloading = false;
+
+// 🔹 Fungsi untuk mendapatkan ID payslip terbaru
+  Future<int?> _fetchLatestPayslipId(int employeeId) async {
+    final latestSlip = await _fetchLatestSlipId(employeeId);
+    return latestSlip?['id'];
+  }
+
+// 🔹 Fungsi download dengan dynamic payslip ID
+  Future<void> downloadAndOpenPayslip(int payslipId) async {
+    if (payslipId == 0) {
+      print("❌ Tidak ada payslip ID yang ditemukan.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Payslip ID tidak ditemukan")),
+      );
+      return;
+    }
+
+    _isDownloading = true;
+
+    final String url = "$baseUrl/payslip/download/$payslipId";
+    print('SlipId : $payslipId');
+    final Map<String, String> headers = {
+      "api-key": ApiConfig.apiKey,
+      "Accept": "application/pdf",
+    };
+
+    print("🔄 Mulai proses download dari URL: $url");
+
+    try {
+      if (!(await requestStoragePermission())) {
+        print("❌ Izin penyimpanan ditolak.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Izin penyimpanan ditolak")),
+        );
+        _isDownloading = false;
+        return;
+      }
+
+      final response = await http.get(Uri.parse(url), headers: headers);
+      print("📥 HTTP Response: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        final directory = Directory('/storage/emulated/0/Download');
+        if (!directory.existsSync()) {
+          directory.createSync(recursive: true);
+        }
+
+        final filePath = "${directory.path}/payslip-$payslipId.pdf";
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        print("✅ File berhasil disimpan di: $filePath");
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text("File disimpan di Download/payslip-$payslipId.pdf")),
+        );
+
+        await OpenFile.open(filePath);
+        print("📖 Berhasil membuka file PDF.");
+      } else {
+        print("❌ Gagal mengunduh file. Status Code: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  "Gagal mengunduh file (Status: ${response.statusCode})")),
+        );
+      }
+    } catch (e) {
+      print("❌ ERROR: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    } finally {
+      _isDownloading = false;
+    }
+  }
+
+  /// Fungsi untuk meminta izin penyimpanan
+  Future<bool> requestStoragePermission() async {
+    if (await Permission.storage.request().isGranted) {
+      print("✅ Izin penyimpanan diberikan.");
+      return true;
+    }
+    return false;
   }
 
   Widget _buildMonthRow(BuildContext context, String payslipDate) {

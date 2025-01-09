@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:hcm_3/components/primary_button.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -92,7 +94,7 @@ class _PagePinSettingsState extends State<PagePinSettings> {
     });
 
     try {
-      var url = Uri.parse("https://jt-hcm.simise.id/api/setup_pin");
+      var url = Uri.parse("$baseUrl/setup_pin");
 
       // Menggunakan format x-www-form-urlencoded
       var requestBody = {
@@ -108,7 +110,7 @@ class _PagePinSettingsState extends State<PagePinSettings> {
         headers: {
           "Content-Type":
               "application/x-www-form-urlencoded", // Perbaikan di sini
-          'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+          'api-key': ApiConfig.apiKey,
         },
         body: requestBody,
       );
@@ -214,10 +216,10 @@ class _PagePinSettingsState extends State<PagePinSettings> {
               const SizedBox(height: 20),
               _isLoading
                   ? const CircularProgressIndicator()
-                  : ElevatedButton(
+                  : PrimaryButton(
                       onPressed: _savePin,
-                      child: const Text("Save PIN"),
-                    ),
+                      buttonText: 'Save PIN',
+                    )
             ],
           ),
         ),

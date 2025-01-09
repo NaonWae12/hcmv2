@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:intl/intl.dart';
 import '../../../components/text_style.dart';
 import 'webview_page.dart';
@@ -94,7 +95,7 @@ class ActivityDetailDialog extends StatelessWidget {
               ...attachmentIds.map((id) {
                 return InkWell(
                   onTap: () {
-                    final fileUrl = "https://jt-hcm.simise.id/web/content/$id";
+                    final fileUrl = "$baseUrl2/web/content/$id";
                     final description =
                         activity['description'] ?? 'WebView'; // Ambil deskripsi
                     _openInWebView(context, fileUrl, description);

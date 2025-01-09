@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '/components/text_style.dart';
 
 import 'bottom_content.dart';
+import 'image_profile.dart';
 import 'midle_content.dart';
 import 'top_content.dart';
 
@@ -84,11 +85,7 @@ class _PageHomeState extends State<PageHome>
             padding: const EdgeInsets.only(left: 10, top: 8),
             child: Row(
               children: [
-                const Icon(
-                  Icons.account_circle,
-                  color: Colors.white,
-                  size: 32,
-                ),
+                const ImageProfile(),
                 const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
