@@ -288,7 +288,7 @@ class _PageDetailPayslipState extends State<PageDetailPayslip> {
           onPressed:
               _isDownloading ? null : () => downloadAndOpenPayslip(payslipId),
           icon: _isDownloading
-              ? CircularProgressIndicator(color: Colors.white60)
+              ? const CircularProgressIndicator(color: Colors.white60)
               : const Icon(
                   Icons.download_for_offline_outlined,
                   size: 45,
@@ -299,10 +299,10 @@ class _PageDetailPayslipState extends State<PageDetailPayslip> {
     );
   }
 
-// 🔹 Variabel untuk indikator loading
   bool _isDownloading = false;
 
 // 🔹 Fungsi untuk mendapatkan ID payslip terbaru
+  // ignore: unused_element
   Future<int?> _fetchLatestPayslipId(int employeeId) async {
     final latestSlip = await _fetchLatestSlipId(employeeId);
     return latestSlip?['id'];

@@ -200,6 +200,7 @@ class _PagePayslipPinState extends State<PagePayslipPin> {
                       controller: _controllers[index],
                       onChanged: (value) => _onChanged(index, value),
                       textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
                       obscureText: false,
                       style: AppTextStyles.displayText_2,
                       inputFormatters: [

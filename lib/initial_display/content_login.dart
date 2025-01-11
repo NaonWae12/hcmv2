@@ -23,7 +23,7 @@ class ContentLogin extends StatefulWidget {
 class _ContentLoginState extends State<ContentLogin> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final String databaseName = 'JT_HCM_STG';
+  final String databaseName = 'JT_HCM_UAT';
 
   Future<void> login() async {
     // Log untuk menampilkan username dan database yang digunakan
@@ -36,7 +36,6 @@ class _ContentLoginState extends State<ContentLogin> {
       builder: (context) => const CustomLoading(imagePath: 'assets/3.png'),
     );
 
-    // Gunakan endpoint API baru
     final url = ApiEndpoints.login(
         databaseName, usernameController.text, passwordController.text);
 
@@ -83,16 +82,15 @@ class _ContentLoginState extends State<ContentLogin> {
 
           if (data.containsKey('role_user')) {
             print('Role User: ${data['role_user']}');
-            await prefs.setString('role_user', data['role_user']);
+            await prefs.setString('role_user', data['role_user'].toString());
           }
 
           if (data.containsKey('job_id')) {
             final jobId = data['job_id'];
             print('Job ID: $jobId');
-            if (jobId is String) {
-              await prefs.setString('job_id', jobId);
-            } else if (jobId is bool && jobId == false) {
-              await prefs.setString('job_id', 'No Job Assigned');
+            if (jobId is bool) {
+              await prefs.setString('job_id',
+                  'No Job Assigned'); // Menyimpan nilai default jika boolean
             } else {
               await prefs.setString('job_id', jobId.toString());
             }
