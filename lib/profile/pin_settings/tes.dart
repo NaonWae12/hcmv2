@@ -6,20 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'page_detail_payslip.dart';
+import '../../home/payslip/page_detail_payslip.dart';
 import '../../service/api_config.dart';
 import '/components/primary_button.dart';
 import '/components/text_style.dart';
 import '/components/colors.dart';
 
-class PagePayslipPin extends StatefulWidget {
-  const PagePayslipPin({super.key});
+class PagePayslipPin1 extends StatefulWidget {
+  const PagePayslipPin1({super.key});
 
   @override
-  State<PagePayslipPin> createState() => _PagePayslipPinState();
+  State<PagePayslipPin1> createState() => _PagePayslipPinState();
 }
 
-class _PagePayslipPinState extends State<PagePayslipPin> {
+class _PagePayslipPinState extends State<PagePayslipPin1> {
   final TextEditingController _pinController = TextEditingController();
 
   @override

@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hcm_3/service/api_config.dart';
-import 'package:image_picker/image_picker.dart'; // Tambahkan library image_picker
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,9 +30,20 @@ class _ImageProfileState extends State<ImageProfile> {
     _loadEmployeeIdAndFetchPhoto();
   }
 
+  /// Fungsi untuk mengecek apakah base64 valid sebelum diproses
+  bool isBase64Valid(String base64String) {
+    try {
+      final decodedBytes = base64Decode(base64String);
+      return decodedBytes.isNotEmpty && decodedBytes.length > 10;
+    } catch (e) {
+      print("Invalid base64: $e");
+      return false;
+    }
+  }
+
   Future<void> _loadEmployeeIdAndFetchPhoto() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    employeeId = prefs.getInt('employee_id'); // Ambil langsung sebagai int
+    employeeId = prefs.getInt('employee_id');
 
     if (employeeId != null) {
       final url = "$baseUrl/employee/get_photo/$employeeId";
@@ -45,41 +56,46 @@ class _ImageProfileState extends State<ImageProfile> {
           },
         );
 
-        // print('Response status: ${response.statusCode}');
-        // print('Response body: ${response.body}');
+        // print("Response Status Code: ${response.statusCode}");
+        // print("Response Body: ${response.body}");
 
         if (response.statusCode == 200) {
           final body = json.decode(response.body);
-          if (body['status'] == 'success') {
-            final photoBase64 = body['data']['photo'];
-            // print('Photo Base64: $photoBase64');
 
-            setState(() {
-              _photoBase64 = photoBase64;
-              _photoBytes = base64Decode(photoBase64);
-            });
+          if (body.containsKey('status') &&
+              body['status'] == 'success' &&
+              body.containsKey('data') &&
+              body['data'].containsKey('photo')) {
+            final photoBase64 = body['data']['photo'];
+
+            if (isBase64Valid(photoBase64)) {
+              setState(() {
+                _photoBase64 = photoBase64;
+                _photoBytes = base64Decode(photoBase64);
+              });
+            } else {
+              print("Received invalid base64 image data.");
+            }
           } else {
-            // print('Error in response: ${body['status']}');
+            print("Invalid response format: Missing 'data' or 'photo'");
           }
         } else {
-          // print('Error: ${response.statusCode} - ${response.reasonPhrase}');
+          print("Failed to load image, status code: ${response.statusCode}");
         }
       } catch (e) {
-        // print('Exception: $e');
+        print("Exception: $e");
       }
     } else {
-      // print('Employee ID not found in SharedPreferences.');
+      print("Employee ID not found in SharedPreferences.");
     }
   }
 
   Future<void> _updatePhoto(File imageFile) async {
-    // Encode image to Base64
     final bytes = await imageFile.readAsBytes();
     final base64Image = base64Encode(bytes);
 
-    // Cek employeeId
     if (employeeId == null) {
-      // print('Employee ID is null.');
+      print("Employee ID is null.");
       return;
     }
 
@@ -99,29 +115,26 @@ class _ImageProfileState extends State<ImageProfile> {
         body: body,
       );
 
-      // print('Response status: ${response.statusCode}');
-      // print('Response body: ${response.body}');
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
         if (responseBody['status'] == 'success') {
-          // print('Photo updated successfully.');
-
-          // Refresh halaman dengan memuat ulang data foto
+          print("Photo updated successfully.");
           await _loadEmployeeIdAndFetchPhoto();
-
           setState(() {
             _photoBase64 = base64Image;
             _photoBytes = bytes;
           });
         } else {
-          // print('Error updating photo: ${responseBody['message']}');
+          print("Error updating photo: ${responseBody['message']}");
         }
       } else {
-        // print('Failed to update photo: ${response.reasonPhrase}');
+        print("Failed to update photo: ${response.reasonPhrase}");
       }
     } catch (e) {
-      // print('Exception: $e');
+      print("Exception: $e");
     }
   }
 
@@ -139,7 +152,7 @@ class _ImageProfileState extends State<ImageProfile> {
   Widget build(BuildContext context) {
     Widget imageWidget;
 
-    if (_photoBase64 != null) {
+    if (_photoBase64 != null && _photoBytes != null) {
       if (_photoBase64!.startsWith('<svg') || _photoBase64!.contains('<?xml')) {
         imageWidget = SvgPicture.string(
           utf8.decode(base64Decode(_photoBase64!)),
@@ -153,6 +166,15 @@ class _ImageProfileState extends State<ImageProfile> {
           fit: BoxFit.cover,
           width: 100,
           height: 100,
+          errorBuilder: (context, error, stackTrace) {
+            print("Error displaying image: $error");
+            return Image.asset(
+              _defaultPhoto,
+              fit: BoxFit.cover,
+              width: 100,
+              height: 100,
+            );
+          },
         );
       }
     } else {

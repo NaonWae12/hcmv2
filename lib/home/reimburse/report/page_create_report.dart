@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:hcm_3/service/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../components/primary_button.dart';
@@ -40,9 +41,9 @@ class _PageCreateReportState extends State<PageCreateReport> {
       return;
     }
 
-    final url = Uri.parse('https://jt-hcm.simise.id/api/hr.expense/execute_kw');
+    final url = Uri.parse('$baseUrl/hr.expense/execute_kw');
     final headers = {
-      'api-key': 'H2BSQUDSOEJXRLT0P2W1GLI9BSYGCQ08',
+      'api-key': ApiConfig.apiKey,
       'Content-Type': 'application/json'
     };
     final body = {

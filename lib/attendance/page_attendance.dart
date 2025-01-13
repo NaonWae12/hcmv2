@@ -28,6 +28,7 @@ class _PageAttendanceState extends State<PageAttendance> {
   bool hasCheckedIn = false;
   bool showCheckOutButton = false;
   String todayDate = _getTodayDate();
+  // String todayDate = "2025-02-13";
 
   @override
   void initState() {
@@ -52,15 +53,48 @@ class _PageAttendanceState extends State<PageAttendance> {
   Future<void> _checkAndCleanOldData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final storedDate = prefs.getString('attendance_date');
+    final checkInTime = prefs.getString('check_in_time');
+
     if (storedDate != todayDate) {
-      // Hapus data lama jika hari sudah berganti
+      // Jika ada check-in tanpa check-out, kirim ke server dulu
+      if (checkInTime != null) {
+        await _sendUnfinishedAttendance(checkInTime);
+      }
+
+      // Hapus data lama
       await prefs.remove('check_in_time');
       await prefs.remove('check_out_time');
       await prefs.remove('attendance_date');
+
+      print('Stored Date: $storedDate');
+      print('Today Date: $todayDate');
+      print('Data Cleared');
     }
-    print('Stored Date: $storedDate');
-    print('Today Date: $todayDate');
-    print('Data Cleared');
+  }
+
+  Future<void> _sendUnfinishedAttendance(String checkInTime) async {
+    final url = Uri.parse('$baseUrl/hr.attendance/create');
+    final headers = {
+      "Content-Type": "application/json",
+      'api-key': ApiConfig.apiKey,
+    };
+    final body = jsonEncode({
+      "employee_id": employeeId,
+      "check_in": checkInTime,
+      "check_out": null, // Tidak ada check-out
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        print("Absensi tanpa check-out berhasil dikirim ke server.");
+      } else {
+        print("Gagal mengirim absensi tanpa check-out.");
+      }
+    } catch (e) {
+      print(
+          "Terjadi kesalahan jaringan saat mengirim absensi tanpa check-out.");
+    }
   }
 
   Future<void> _loadAttendanceStatus() async {

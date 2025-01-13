@@ -158,8 +158,11 @@ class _PageDetailPayslipState extends State<PageDetailPayslip> {
                       child: CustomLoading(imagePath: 'assets/3.png'));
                 } else if (latestSlipSnapshot.hasError ||
                     latestSlipSnapshot.data == null) {
-                  return const Center(
-                      child: Text('Failed to load latest payslip'));
+                  return Center(
+                      child: Text(
+                    "Tidak ada data slip gaji tersedia.",
+                    style: AppTextStyles.heading2,
+                  ));
                 } else {
                   final latestSlip = latestSlipSnapshot.data!;
                   final payslipDate =

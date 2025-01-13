@@ -14,7 +14,9 @@ class TotalAmount extends StatefulWidget {
 class TotalAmountState extends State<TotalAmount> {
   final TextEditingController _controller = TextEditingController();
   String get formattedAmount => _controller.text;
-  void resetFormattedAmount() {
+
+  /// Reset state dan controller
+  void resetData() {
     setState(() {
       _controller.clear(); // Mengosongkan teks dalam controller
     });
@@ -22,7 +24,7 @@ class TotalAmountState extends State<TotalAmount> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller.dispose(); // Membersihkan controller
     super.dispose();
   }
 

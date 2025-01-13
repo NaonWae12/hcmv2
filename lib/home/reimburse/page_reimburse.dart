@@ -1,20 +1,19 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../components/primary_button.dart';
 import '../../components/text_style.dart';
-import '../../service/api_config.dart';
+
 import 'approval/page_approval.dart';
 import 'date.dart';
-import 'dialog_utils.dart';
+
+import 'expense_submission.dart';
 import 'history_reimburse/page_history.dart';
-import 'package:http/http.dart' as http;
+
 import 'midle_content.dart';
-import 'reimburse_list.dart';
+// import 'reimburse_list.dart';
 import 'top_content.dart';
 import 'total_amount.dart';
 
@@ -30,7 +29,7 @@ class _PageReimburseState extends State<PageReimburse> {
   final GlobalKey<MidleContentState> _midleContentKey = GlobalKey();
   final GlobalKey<TotalAmountState> _totalAmountKey = GlobalKey();
   final GlobalKey<DateState> _dateKey = GlobalKey();
-  final GlobalKey<ReimburseListState> _reimburseListKey = GlobalKey();
+  // final GlobalKey<ReimburseListState> _reimburseListKey = GlobalKey();
 
   int? employeeId;
   String? roleUser;
@@ -59,69 +58,31 @@ class _PageReimburseState extends State<PageReimburse> {
     });
   }
 
-  Future<void> _submitRequest() async {
-    if (employeeId == null) {
-      print('Employee ID tidak ditemukan.');
-      return;
-    }
-
-    final description = _topContentKey.currentState?.description;
-    final productId = _midleContentKey.currentState?.selectedExpenseCategoryId;
-    final totalAmount = _totalAmountKey.currentState?.formattedAmount;
-    final date = _dateKey.currentState?.selectedDate;
-
-    if (description == null ||
-        productId == null ||
-        totalAmount == null ||
-        date == null) {
-      // Menampilkan dialog jika ada data yang kosong
-      DialogUtils.showErrorDialog(context, 'Please fill in all data.');
-      return;
-    }
-
-    final formattedAmount =
-        int.tryParse(totalAmount.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-
-    final body = {
-      "name": description,
-      "product_id": productId,
-      "total_amount_currency": formattedAmount,
-      "employee_id": employeeId,
-      "payment_mode": "own_account",
-      "date": date.toIso8601String().split('T')[0],
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse(ApiEndpoints.submitRequest()),
-        headers: {
-          'Content-Type': 'application/json',
-          'api-key': ApiConfig.apiKey,
-        },
-        body: json.encode(body),
-      );
-
-      if (response.statusCode == 200) {
+  void _handleAddExpense() {
+    ExpenseSubmission(context).addExpenseAndSubmit(
+      description: _topContentKey.currentState?.description ?? '',
+      productId: _midleContentKey.currentState?.selectedExpenseCategoryId ?? 0,
+      totalAmount: int.tryParse(
+            _totalAmountKey.currentState?.formattedAmount
+                    .replaceAll(RegExp(r'[^0-9]'), '') ??
+                '0',
+          ) ??
+          0,
+      date: _dateKey.currentState?.selectedDate
+              ?.toIso8601String()
+              .split('T')[0] ??
+          '',
+      onSuccess: () {
+        // Reset komponen setelah pengiriman berhasil
         _topContentKey.currentState?.resetDescription();
-        // _midleContentKey.currentState?.resetSelectedExpenseCategory();
-        _totalAmountKey.currentState?.resetFormattedAmount();
+
+        _totalAmountKey.currentState?.resetData();
+
         _dateKey.currentState?.resetSelectedDate();
-        // Tampilkan dialog sukses
-        DialogUtils.showSuccessDialog(
-          context,
-          'Reimburse telah ditambahkan',
-          onOkPressed: () {
-            _reimburseListKey.currentState?.refreshData();
-          },
-        );
-      } else {
-        // Tampilkan dialog error
-        DialogUtils.showErrorDialog(context,
-            'Gagal mengirim data. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      DialogUtils.showErrorDialog(context, 'Terjadi error: $e');
-    }
+
+        setState(() {}); // Segarkan halaman
+      },
+    );
   }
 
   @override
@@ -170,14 +131,14 @@ class _PageReimburseState extends State<PageReimburse> {
                   const SizedBox(height: 10),
                   Date(key: _dateKey),
                   const SizedBox(height: 10),
-                  ReimburseList(key: _reimburseListKey),
+                  // ReimburseList(key: _reimburseListKey),
                   Padding(
                     padding: const EdgeInsets.all(10),
                     child: PrimaryButton(
                       buttonHeight: 50,
                       buttonWidth: MediaQuery.of(context).size.width,
                       buttonText: 'Add Expense',
-                      onPressed: _submitRequest,
+                      onPressed: _handleAddExpense,
                     ),
                   ),
                 ],

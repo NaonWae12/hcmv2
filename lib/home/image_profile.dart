@@ -42,19 +42,37 @@ class _ImageProfileState extends State<ImageProfile> {
           },
         );
 
+        // print("Response Status Code: ${response.statusCode}");
+        // print("Response Body: ${response.body}");
+
         if (response.statusCode == 200) {
           final body = json.decode(response.body);
-          if (body['status'] == 'success') {
+
+          // Validasi struktur JSON yang benar
+          if (body.containsKey('status') &&
+              body['status'] == 'success' &&
+              body.containsKey('data') &&
+              body['data'].containsKey('photo')) {
             final photoBase64 = body['data']['photo'];
 
-            setState(() {
-              _photoBase64 = photoBase64;
-              _photoBytes = base64Decode(photoBase64);
-            });
+            // Coba decode base64, tangani error jika tidak valid
+            try {
+              final bytes = base64Decode(photoBase64);
+              setState(() {
+                _photoBase64 = photoBase64;
+                _photoBytes = bytes;
+              });
+            } catch (e) {
+              print("Failed to decode base64: $e");
+            }
+          } else {
+            print("Invalid response format: Missing 'data' or 'photo'");
           }
+        } else {
+          print("Failed to load image, status code: ${response.statusCode}");
         }
       } catch (e) {
-        // print('Exception: $e');
+        print("Exception: $e");
       }
     }
   }
@@ -63,7 +81,7 @@ class _ImageProfileState extends State<ImageProfile> {
   Widget build(BuildContext context) {
     Widget imageWidget;
 
-    if (_photoBase64 != null) {
+    if (_photoBase64 != null && _photoBytes != null) {
       if (_photoBase64!.startsWith('<svg') || _photoBase64!.contains('<?xml')) {
         imageWidget = SvgPicture.string(
           utf8.decode(base64Decode(_photoBase64!)),
@@ -77,10 +95,18 @@ class _ImageProfileState extends State<ImageProfile> {
           fit: BoxFit.cover,
           width: 39,
           height: 39,
+          errorBuilder: (context, error, stackTrace) {
+            print("Error displaying image: $error");
+            return const Icon(
+              Icons.account_circle,
+              size: 32,
+              color: Colors.grey,
+            );
+          },
         );
       }
     } else {
-      // Gambar default menggunakan Icons.account_circle
+      // Fallback ke ikon default jika tidak ada foto
       imageWidget = const Icon(
         Icons.account_circle,
         size: 32,

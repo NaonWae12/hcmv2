@@ -8,14 +8,14 @@ import 'dart:convert';
 import 'package:hcm_3/components/primary_button.dart';
 import 'package:hcm_3/service/api_config.dart';
 
-class PagePinSettings extends StatefulWidget {
-  const PagePinSettings({super.key});
+class PagePinSettings1 extends StatefulWidget {
+  const PagePinSettings1({super.key});
 
   @override
-  State<PagePinSettings> createState() => _PagePinSettingsState();
+  State<PagePinSettings1> createState() => _PagePinSettingsState();
 }
 
-class _PagePinSettingsState extends State<PagePinSettings> {
+class _PagePinSettingsState extends State<PagePinSettings1> {
   final TextEditingController _currentPinController = TextEditingController();
   final TextEditingController _newPinController = TextEditingController();
   final TextEditingController _confirmPinController = TextEditingController();
