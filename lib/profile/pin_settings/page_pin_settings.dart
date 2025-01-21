@@ -8,6 +8,8 @@ import 'dart:convert';
 import 'package:hcm_3/components/primary_button.dart';
 import 'package:hcm_3/service/api_config.dart';
 
+import '../../components/text_style.dart';
+
 class PagePinSettings extends StatefulWidget {
   const PagePinSettings({super.key});
 
@@ -206,7 +208,10 @@ class _PagePinSettingsState extends State<PagePinSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Set up your PIN'),
+        title: Text(
+          'Set up your PIN',
+          style: AppTextStyles.headingStyle,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -214,9 +219,9 @@ class _PagePinSettingsState extends State<PagePinSettings> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 "Create New PIN",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: AppTextStyles.headingStyle,
               ),
               const SizedBox(height: 20),
               for (int i = 0; i < 3; i++)

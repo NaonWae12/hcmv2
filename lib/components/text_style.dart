@@ -151,6 +151,14 @@ class AppTextStyles {
     );
   }
 
+  static TextStyle headingStyle = GoogleFonts.quicksand(
+    textStyle: const TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 20,
+      color: Colors.black,
+    ),
+  );
+
   // static TextStyle boldLabel = GoogleFonts.quicksand(
   //   textStyle: const TextStyle(
   //     fontSize: 14,

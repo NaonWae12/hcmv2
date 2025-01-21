@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../components/text_style.dart';
 import 'about.dart';
-import 'company.dart';
+import 'my_company/company.dart';
 import 'general.dart';
 import 'image_profile.dart';
 

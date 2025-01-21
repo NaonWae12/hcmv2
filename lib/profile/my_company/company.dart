@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../components/primary_container.dart';
-import '../components/text_style.dart';
+import '../../components/primary_container.dart';
+import '../../components/text_style.dart';
+import 'page_my_company.dart';
 
 class Company extends StatelessWidget {
   Company({super.key});
@@ -10,7 +11,7 @@ class Company extends StatelessWidget {
     {
       'icon': 'assets/icons/case_rounded.svg',
       'title': 'My Company',
-      'page': const AccountSettingsPage(),
+      'page': const PageMyCompany(),
     },
   ];
 
@@ -54,22 +55,6 @@ class Company extends StatelessWidget {
             ),
           ]),
         ),
-      ),
-    );
-  }
-}
-
-class AccountSettingsPage extends StatelessWidget {
-  const AccountSettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Account Settings'),
-      ),
-      body: const Center(
-        child: Text('Account Settings Page'),
       ),
     );
   }
